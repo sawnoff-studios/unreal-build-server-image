@@ -213,10 +213,8 @@ Resources:
         Fn::Sub:
           arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
       Components:
-        - ComponentArn:
-            Ref: GitComponent
-        - ComponentArn:
-            Ref: GitLfsComponent
+        - ComponentArn: !Ref GitComponent
+        - ComponentArn: !Ref GitLfsComponent
 
   # AMI distribution
   DistributionConfiguration:
