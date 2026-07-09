@@ -6,6 +6,7 @@ on:
 env:
   PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
+  LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   INSTANCE_TYPE: "t3.medium"
 permissions:
   id-token: write
@@ -27,7 +28,7 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
           template: ${{ github.workspace }}/image-build.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
       - name: Start Build Pipeline
         run: |
