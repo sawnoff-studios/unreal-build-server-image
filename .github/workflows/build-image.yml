@@ -4,6 +4,7 @@ on:
     branches:
       - main
 env:
+  PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
   INSTANCE_TYPE: "t3.medium"
 permissions:
@@ -17,7 +18,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ env.IAM_ROLE }}
-          role-session-name: UnrealBuildServerImage-${{ github.sha }}
+          role-session-name: ${{ env.PROJECT_NAME }}-${{ github.sha }}
           aws-region: ap-southeast-2
       - name: Clone repository
         uses: actions/checkout@v7
@@ -31,3 +32,18 @@ jobs:
       - name: Start Build Pipeline
         run: |
           aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.stack-output }}
+
+  Teardown:
+    runs-on: ubuntu-latest
+    needs: BuildImage
+    if: always()
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.IAM_ROLE }}
+          role-session-name: UnrealBuildServerImage-${{ github.sha }}
+          aws-region: ap-southeast-2
+      - name: Delete CloudFormation Stack
+        run: |
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
