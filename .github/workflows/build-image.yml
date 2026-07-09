@@ -4,7 +4,7 @@ on:
     branches:
       - main
 env:
-  IAM_ROLE: "arn:aws:iam::123456789012:role/UnrealBuildServerImageBuilderRole"
+  IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
   INSTANCE_TYPE: "t3.medium"
 permissions:
   id-token: write
