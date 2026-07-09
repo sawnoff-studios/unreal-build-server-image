@@ -12,11 +12,11 @@ Resources:
   # Image builder log bucket
   ImageBuilderLogBucket:
     Type: AWS::S3::Bucket
-    BucketName: !Ref LogBucketName
     # If you want to delete the stack, but keep the bucket, set the DeletionPolicy to Retain.
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html
     # DeletionPolicy: Retain
     Properties:
+      BucketName: !Ref LogBucketName
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
