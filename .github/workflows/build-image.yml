@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v7
       - name: Deploy CloudFormation Stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
           template: ${{ github.workspace }}/image-build.yml
@@ -32,7 +33,7 @@ jobs:
           capabilities: 'CAPABILITY_NAMED_IAM'
       - name: Start Build Pipeline
         run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.stack-output }}
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.PipelineArn }}
 
   DeleteStack:
     runs-on: ubuntu-latest
