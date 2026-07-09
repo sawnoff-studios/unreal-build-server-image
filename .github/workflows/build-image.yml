@@ -34,18 +34,3 @@ jobs:
       - name: Start Build Pipeline
         run: |
           aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.PipelineArn }}
-
-  DeleteStack:
-    runs-on: ubuntu-latest
-    needs: DeployStack
-    if: always()
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ env.IAM_ROLE }}
-          role-session-name: UnrealBuildServerImage-${{ github.sha }}
-          aws-region: ap-southeast-2
-      - name: Delete CloudFormation Stack
-        run: |
-          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
