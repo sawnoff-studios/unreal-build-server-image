@@ -84,7 +84,7 @@ Resources:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Roles:
-        - Ref: ImageBuilderRole
+        - Ref: InstanceRole
 
   # Build instance configuration
   # Specifies the infrastructure within which to build and test your image.
