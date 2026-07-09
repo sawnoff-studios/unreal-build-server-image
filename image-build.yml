@@ -83,6 +83,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
+      InstanceProfileName: UnrealBuildServerImageInstanceProfile
       Roles:
         - Ref: InstanceRole
 
