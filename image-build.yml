@@ -96,7 +96,7 @@ Resources:
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
-        Ref: ImageBuilderInstanceProfile
+        Ref: InstanceProfile
       # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
       Logging:
         S3Logs:
