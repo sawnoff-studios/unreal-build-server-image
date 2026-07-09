@@ -1,0 +1,33 @@
+name: Build Image
+on:
+  push:
+    branches:
+      - main
+env:
+  PROJECT_NAME: "Unreal Build Server Image"
+  IAM_ROLE: "arn:aws:iam::123456789012:role/UnrealBuildServerImageBuilderRole"
+  INSTANCE_TYPE: "t3.medium"
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  BuildImage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME }}Build-${{ github.sha }}
+          aws-region: ap-southeast-2
+      - name: Clone repository
+        uses: actions/checkout@v7
+      - name: Deploy CloudFormation Stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        with:
+          name: ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
+          template: ${{ github.workspace }}/image-build.yml
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }}"
+      - name: Start Build Pipeline
+        run: |
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.stack-output }}

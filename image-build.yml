@@ -1,0 +1,132 @@
+﻿Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.medium
+    Description: EC2 instance type used during image build
+
+Resources:
+  ImageBuilderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: EC2ImageBuilderWindowsRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - imagebuilder.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/EC2ImageBuilderLifecycleExecutionPolicy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  # Custom component to install Git
+  InstallGitComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-Git-Windows
+      Platform: Windows
+      Version: 1.0.0
+      Data: |
+        name: Install Git for Windows
+        description: Installs Git using the official Git for Windows installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.2/Git-2.55.0.2-64-bit.exe"
+                      $installer = "C:\Windows\Temp\GitInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\GitInstaller.exe" `
+                        -ArgumentList "/VERYSILENT /NORESTART" `
+                        -Wait
+
+
+              - name: VerifyGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git --version
+
+  # Windows Server 2025 base image
+  ImageRecipe:
+    Type: AWS::ImageBuilder::ImageRecipe
+    Properties:
+      Name: WindowsServer2025-Git-Recipe
+      Version: 1.0.0
+      ParentImage:
+        Fn::Sub:
+          arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
+      Components:
+        - ComponentArn:
+            Ref: InstallGitComponent
+
+  # Build instance configuration
+  InfrastructureConfiguration:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
+    Properties:
+      Name: WindowsServer2025-BuildInfrastructure
+      InstanceTypes:
+        - !Ref InstanceType
+      InstanceProfileName:
+        Ref: ImageBuilderInstanceProfile
+
+  # EC2 instance profile
+  ImageBuilderInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: ImageBuilderRole
+
+  # AMI distribution
+  DistributionConfiguration:
+    Type: AWS::ImageBuilder::DistributionConfiguration
+    Properties:
+      Name: WindowsServer2025-Git-Distribution
+      Distributions:
+        - Region:
+            Ref: AWS::Region
+          AmiDistributionConfiguration:
+            Name:
+              Fn::Sub:
+                WindowsServer2025-Git-{{imagebuilder:buildDate}}
+            Description:
+              Windows Server 2025 with Git installed
+
+  # Image pipeline
+  ImagePipeline:
+    Type: AWS::ImageBuilder::ImagePipeline
+    Properties:
+      Name: WindowsServer2025-Git-Pipeline
+      ImageRecipeArn:
+        Ref: ImageRecipe
+      InfrastructureConfigurationArn:
+        Ref: InfrastructureConfiguration
+      DistributionConfigurationArn:
+        Ref: DistributionConfiguration
+      Status:
+        ENABLED
+
+Outputs:
+  PipelineArn:
+    Description: Image Builder Pipeline ARN
+    Value:
+      Ref: ImagePipeline
