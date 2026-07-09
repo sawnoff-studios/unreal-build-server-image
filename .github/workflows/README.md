@@ -34,6 +34,7 @@ Builds an EC2 Image Builder image for an Unreal Build Server
                 "iam:DeleteRolePolicy",
                 "iam:CreateServiceLinkedRole",
                 "iam:PassRole",
+                "iam:GetInstanceProfile",
                 "imagebuilder:CreateDistributionConfiguration",
                 "imagebuilder:CreateComponent",
                 "imagebuilder:CreateImagePipeline",
@@ -48,11 +49,13 @@ Builds an EC2 Image Builder image for an Unreal Build Server
                 "imagebuilder:GetImageRecipe",
                 "imagebuilder:GetInfrastructureConfiguration",
                 "imagebuilder:GetDistributionConfiguration",
+                "imagebuilder:UpdateInfrastructureConfiguration",
                 "s3:CreateBucket",
                 "s3:PutEncryptionConfiguration",
                 "s3:DeleteBucket",
                 "s3:PutBucketVersioning",
-                "s3:PutBucketPublicAccessBlock"
+                "s3:PutBucketPublicAccessBlock",
+                "imagebuilder:StartImagePipelineExecution"
             ],
             "Resource": "*"
         }
