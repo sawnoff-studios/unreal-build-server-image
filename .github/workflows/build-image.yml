@@ -31,6 +31,6 @@ jobs:
           template: ${{ github.workspace }}/image-build.yml
           parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
-      - name: Start Build Pipeline
-        run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.PipelineArn }}
+#      - name: Start Build Pipeline
+#        run: |
+#          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.PipelineArn }}
