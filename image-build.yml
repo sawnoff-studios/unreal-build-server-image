@@ -1,34 +1,121 @@
 ﻿Parameters:
+  LogBucketName:
+    Type: String
+    Description: Name of the S3 bucket for image builder logs
+
   InstanceType:
     Type: String
     Default: t3.medium
     Description: EC2 instance type used during image build
 
 Resources:
-  ImageBuilderRole:
-    Type: AWS::IAM::Role
+  # Image builder log bucket
+  ImageBuilderLogBucket:
+    Type: AWS::S3::Bucket
+    Name: !Ref LogBucketName
+    # If you want to delete the stack, but keep the bucket, set the DeletionPolicy to Retain.
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html
+    # DeletionPolicy: Retain
     Properties:
-      RoleName: EC2ImageBuilderWindowsRole
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  # EC2 instance role
+  # By default, AWS Services do not have permission to perform actions on your instances. This grants
+  # AWS Systems Manager (SSM) and EC2 Image Builder the necessary permissions to build an image.
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+  # https://docs.aws.amazon.com/imagebuilder/latest/userguide/image-builder-setting-up.html
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      Comment: Role to be used by instance during image build.
+    Properties:
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: Allow
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
             Principal:
               Service:
-                - imagebuilder.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/EC2ImageBuilderLifecycleExecutionPolicy
-        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+                - !Sub 'ec2.${AWS::URLSuffix}'
+      Path: /executionServiceEC2Role/
+
+  # EC2 instance role logging policy
+  # Policy to allow the instance to write to the S3 bucket (via instance role / instance profile).
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
+  InstanceRoleLoggingPolicy:
+    Type: AWS::IAM::Policy
+    Metadata:
+      Comment: Allows the instance to save log files to an S3 bucket.
+    Properties:
+      PolicyName: ImageBuilderLogBucketPolicy
+      Roles:
+        - Ref: InstanceRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:PutObject
+            Effect: Allow
+            Resource:
+              - Fn::Sub:
+                  - arn:${AWS::Partition}:s3:::${BUCKET}/*
+                  - BUCKET:
+                      Ref: ImageBuilderLogBucket
+
+  # EC2 instance profile
+  # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
+  # This profile will be used during the image build process.
+  # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: ImageBuilderRole
+
+  # Build instance configuration
+  # Specifies the infrastructure within which to build and test your image.
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-imagebuilder-infrastructureconfiguration.html
+  InfrastructureConfiguration:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
+    Properties:
+      Name: WindowsServer2025-BuildInfrastructure
+      InstanceTypes:
+        - !Ref InstanceType
+      InstanceProfileName:
+        Ref: ImageBuilderInstanceProfile
+      # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
+      Logging:
+        S3Logs:
+          S3BucketName:
+            Ref: ImageBuilderLogBucket
+          # S3KeyPrefix: 'my-imagebuilder-bucket-prefix'
+      # If you would like to keep the instance running after a failed build, set TerminateInstanceOnFailure to false.
+      # TerminateInstanceOnFailure: false
+      # If you do not have a default VPC or want to use a different VPC, you must specify the subnet ID to use
+      # SubnetId: 'subnet-id'
 
   # Custom component to install Git
-  InstallGitComponent:
+  GitComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: Install-Git-Windows
-      Platform: Windows
+      Name: Git
       Version: 1.0.0
+      Description: Install Git for Windows
+      Platform: Windows
       Data: |
         name: Install Git for Windows
         description: Installs Git using the official Git for Windows installer
@@ -72,29 +159,16 @@ Resources:
     Properties:
       Name: WindowsServer2025-Git-Recipe
       Version: 1.0.0
+      # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
+      # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
+      # regions use aws-cn and AWS GovCloud (US) regions are aws-us-gov.
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
       ParentImage:
         Fn::Sub:
           arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
       Components:
         - ComponentArn:
             Ref: InstallGitComponent
-
-  # Build instance configuration
-  InfrastructureConfiguration:
-    Type: AWS::ImageBuilder::InfrastructureConfiguration
-    Properties:
-      Name: WindowsServer2025-BuildInfrastructure
-      InstanceTypes:
-        - !Ref InstanceType
-      InstanceProfileName:
-        Ref: ImageBuilderInstanceProfile
-
-  # EC2 instance profile
-  ImageBuilderInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Roles:
-        - Ref: ImageBuilderRole
 
   # AMI distribution
   DistributionConfiguration:
