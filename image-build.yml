@@ -154,6 +154,51 @@ Resources:
                     - |
                       git --version
 
+  # Custom component to install Git LFS
+  GitLfsComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Git
+      Version: 1.0.0
+      Description: Install Git LFS for Windows
+      Platform: Windows
+      Data: |
+        name: Install Git for Windows
+        description: Installs Git LFS using the official Git LFS for Windows installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://github.com/git-lfs/git-lfs/releases/download/v3.4.0/git-lfs-windows-v3.4.0.exe"
+                      $installer = "C:\Windows\Temp\GitLfsInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\GitLfsInstaller.exe" `
+                        -ArgumentList "/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART" `
+                        -Wait
+
+
+              - name: VerifyGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git lfs --version
+
   # Windows Server 2025 base image
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
@@ -170,6 +215,8 @@ Resources:
       Components:
         - ComponentArn:
             Ref: GitComponent
+        - ComponentArn:
+            Ref: GitLfsComponent
 
   # AMI distribution
   DistributionConfiguration:
