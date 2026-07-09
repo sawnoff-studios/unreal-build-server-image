@@ -27,7 +27,7 @@ jobs:
           name: ${{ env.PROJECT_NAME }}BuildStack-${{ github.sha }}
           template: ${{ github.workspace }}/image-build.yml
           parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }}"
-          capabilities: 'CAPABILITY_IAM'
+          capabilities: 'CAPABILITY_NAMED_IAM'
       - name: Start Build Pipeline
         run: |
           aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.stack-output }}
