@@ -8,10 +8,15 @@
     Default: t3.medium
     Description: EC2 instance type used during image build
 
-  UnrealVersion:
+  UnrealMajorVersion:
     Type: String
-    Default: 5.6
-    Description: Unreal Engine version
+    Default: 5
+    Description: Unreal Engine major version
+
+  UnrealMinorVersion:
+    Type: String
+    Default: 6
+    Description: Unreal Engine minor version
 
 Resources:
   # Image builder log bucket
@@ -208,12 +213,7 @@ Resources:
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name: !Join
-        - '-'
-        - - WindowsServer2025-Unreal-Engine
-          - !Split
-            - '.'
-            - {{UnrealVersion}}
+      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}
       Version: 1.0.0
       # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
       # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
@@ -230,33 +230,22 @@ Resources:
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
     Properties:
-      Name: !Join
-        - '-'
-        - - WindowsServer2025-Unreal-Engine
-          - !Split
-            - '.'
-            - {{UnrealVersion}}
+      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}
       Distributions:
         - Region:
             Ref: AWS::Region
           AmiDistributionConfiguration:
             Name:
               Fn::Sub:
-                WindowsServer2025-Unreal-Engine-{{UnrealVersion}}-{{imagebuilder:buildDate}}
+                WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}-{{imagebuilder:buildDate}}
             Description:
-              Windows Server 2025 with Unreal Engine {{UnrealVersion}} installed
+              Windows Server 2025 with Unreal Engine {{UnrealMajorVersion}}.{{UnrealMinorVersion}} installed
 
   # Image pipeline
   ImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name: !Join
-        - '-'
-        - - WindowsServer2025-Unreal-Engine
-          - !Split
-            - '.'
-            - {{UnrealVersion}}
-        - Pipeline
+      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}-Pipeline
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:
