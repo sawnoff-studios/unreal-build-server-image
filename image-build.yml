@@ -285,9 +285,12 @@ Resources:
                 inputs:
                   commands:
                     - |
-                      if (!(Test-Path "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\devenv.exe")) {
-                          throw "Visual Studio not detected"
+                      $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+                      $installPath = & $vswhere -latest -property installationPath
+                      if (-not $installPath) {
+                        throw "Visual Studio not detected"
                       }
+                      Write-Host "Visual Studio installed at: $installPath"
 
   EpicGamesLauncherComponent:
     Type: AWS::ImageBuilder::Component
