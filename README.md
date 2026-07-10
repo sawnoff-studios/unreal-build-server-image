@@ -1,6 +1,6 @@
 ﻿# Unreal Build Server Image
 
-Builds an EC2 Image Builder image for an Unreal Build Server
+Builds an EC2 Image Builder image for an Unreal Engine build server
 
 ## Required IAM policy:
 
