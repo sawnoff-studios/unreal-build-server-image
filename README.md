@@ -50,12 +50,14 @@ Builds an EC2 Image Builder image for an Unreal Build Server
                 "imagebuilder:GetInfrastructureConfiguration",
                 "imagebuilder:GetDistributionConfiguration",
                 "imagebuilder:UpdateInfrastructureConfiguration",
+                "imagebuilder:UpdateDistributionConfiguration",
                 "s3:CreateBucket",
                 "s3:PutEncryptionConfiguration",
                 "s3:DeleteBucket",
                 "s3:PutBucketVersioning",
                 "s3:PutBucketPublicAccessBlock",
-                "imagebuilder:StartImagePipelineExecution"
+                "imagebuilder:StartImagePipelineExecution",
+                "SNS:Publish"
             ],
             "Resource": "*"
         }
