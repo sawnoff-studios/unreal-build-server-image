@@ -180,7 +180,7 @@ Resources:
         phases:
           - name: build
             steps:
-              - name: DownloadGit
+              - name: DownloadGitLfs
                 action: ExecutePowerShell
                 inputs:
                   commands:
@@ -191,7 +191,7 @@ Resources:
                         -Uri $url `
                         -OutFile $installer
 
-              - name: InstallGit
+              - name: InstallGitLfs
                 action: ExecutePowerShell
                 inputs:
                   commands:
@@ -202,12 +202,80 @@ Resources:
                         -Wait
 
 
-              - name: VerifyGit
+              - name: VerifyGitLfs
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
                       git lfs --version
+
+  # Custom component to install Visual Studio 2026 Community Edition
+  VisualStudio2026CommunityComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-VisualStudio-2026-Community
+      Platform: Windows
+      Version: 1.0.0
+      Description: Installs Visual Studio 2026 Community Edition
+      Data: |
+        name: Install Visual Studio 2026 Community
+        description: Downloads and installs Visual Studio 2026 Community
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: InstallVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $InstallerPath = "C:\Windows\Temp\vs_community.exe"
+
+                      Write-Host "Downloading Visual Studio Community installer..."
+
+                      Invoke-WebRequest `
+                        -Uri "https://aka.ms/vs/18/release/vs_community.exe" `
+                        -OutFile $InstallerPath
+
+                      Write-Host "Installing Visual Studio..."
+
+                      Start-Process `
+                        -FilePath $InstallerPath `
+                        -ArgumentList @(
+                          "--quiet",
+                          "--wait",
+                          "--norestart",
+                          "--nocache",
+                          "--add",
+                          "Microsoft.VisualStudio.Workload.NativeGame",
+                          "--includeRecommended"
+                        ) `
+                        -Wait `
+                        -PassThru
+
+                      if ($LASTEXITCODE -ne 0) {
+                          throw "Visual Studio installation failed with exit code $LASTEXITCODE"
+                      }
+
+                      Write-Host "Cleaning up installer..."
+
+                      Remove-Item `
+                        -Path $InstallerPath `
+                        -Force
+
+                      Write-Host "Visual Studio installation complete."
+        
+              - name: VerifyVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      if (!(Test-Path "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\devenv.exe")) {
+                          throw "Visual Studio not detected"
+                      }
 
   # Windows Server 2025 base image
   ImageRecipe:
@@ -227,6 +295,7 @@ Resources:
       Components:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
+        - ComponentArn: !Ref VisualStudio2026CommunityComponent
 
   # AMI distribution
   DistributionConfiguration:
