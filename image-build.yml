@@ -213,6 +213,13 @@ Resources:
                   commands:
                     - |
                       git lfs --version
+        
+              - name: ConfigureGitLfs
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git config --global lfs.concurrenttransfers 64
 
   # Custom component to install Visual Studio 2026 Community Edition
   VisualStudio2026CommunityComponent:
