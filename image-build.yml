@@ -379,6 +379,11 @@ Resources:
       ParentImage:
         Fn::Sub:
           arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 250
+            VolumeType: gp2
       Components:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
