@@ -70,25 +70,25 @@ Resources:
   # EC2 instance role logging policy
   # Policy to allow the instance to write to the S3 bucket (via instance role / instance profile).
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
-  InstanceRoleLoggingPolicy:
-    Type: AWS::IAM::Policy
-    Metadata:
-      Comment: Allows the instance to save log files to an S3 bucket.
-    Properties:
-      PolicyName: ImageBuilderLogBucketPolicy
-      Roles:
-        - Ref: InstanceRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Action:
-              - s3:PutObject
-            Effect: Allow
-            Resource:
-              - Fn::Sub:
-                  - arn:${AWS::Partition}:s3:::${BUCKET}/*
-                  - BUCKET:
-                      Ref: ImageBuilderLogBucket
+#  InstanceRoleLoggingPolicy:
+#    Type: AWS::IAM::Policy
+#    Metadata:
+#      Comment: Allows the instance to save log files to an S3 bucket.
+#    Properties:
+#      PolicyName: ImageBuilderLogBucketPolicy
+#      Roles:
+#        - Ref: InstanceRole
+#      PolicyDocument:
+#        Version: 2012-10-17
+#        Statement:
+#          - Action:
+#              - s3:PutObject
+#            Effect: Allow
+#            Resource:
+#              - Fn::Sub:
+#                  - arn:${AWS::Partition}:s3:::${BUCKET}/*
+#                  - BUCKET:
+#                      Ref: ImageBuilderLogBucket
 
   # EC2 instance profile
   # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
