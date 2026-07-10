@@ -4,8 +4,8 @@ on:
 #  push:
 #    branches:
 #      - main
-    paths:
-      - image-build.yml
+#    paths:
+#      - image-build.yml
 env:
   PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
