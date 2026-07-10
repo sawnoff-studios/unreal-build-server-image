@@ -213,7 +213,7 @@ Resources:
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}
+      Name: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
       Version: 1.0.0
       # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
       # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
@@ -230,22 +230,22 @@ Resources:
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
     Properties:
-      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}
+      Name: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
       Distributions:
         - Region:
             Ref: AWS::Region
           AmiDistributionConfiguration:
             Name:
               Fn::Sub:
-                WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}-{{imagebuilder:buildDate}}
+                WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
             Description:
-              Windows Server 2025 with Unreal Engine {{UnrealMajorVersion}}.{{UnrealMinorVersion}} installed
+              Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
 
   # Image pipeline
   ImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name: WindowsServer2025-Unreal-Engine-{{UnrealMajorVersion}}-{{UnrealMinorVersion}}-Pipeline
+      Name: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-Pipeline
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:
