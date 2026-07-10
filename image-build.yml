@@ -5,7 +5,7 @@
 
   InstanceType:
     Type: String
-    Default: t3.medium
+    Default: m5.xlarge
     Description: EC2 instance type used during image build
 
   UnrealMajorVersion:
