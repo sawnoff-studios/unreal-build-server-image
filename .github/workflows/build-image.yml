@@ -10,7 +10,7 @@ env:
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   SNS_TOPIC_ARN: "arn:aws:sns:ap-southeast-2:932297900301:UnrealBuildServerImage"
-  INSTANCE_TYPE: "t3.medium"
+  INSTANCE_TYPE: "m5.xlarge"
 permissions:
   id-token: write
   contents: read
