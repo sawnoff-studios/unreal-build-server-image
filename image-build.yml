@@ -268,7 +268,7 @@ Resources:
                         -Wait `
                         -PassThru
 
-                      if ($LASTEXITCODE -ne 0 -and $exitCode -ne 3010) {
+                      if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) {
                           throw "Visual Studio installation failed with exit code $LASTEXITCODE"
                       }
 
