@@ -23,25 +23,25 @@
     Description: SNS topic ARN for notifications
 
 Resources:
-  # Image builder log bucket
-  ImageBuilderLogBucket:
-    Type: AWS::S3::Bucket
-    # If you want to delete the stack, but keep the bucket, set the DeletionPolicy to Retain.
-    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html
-    DeletionPolicy: Retain
-    Properties:
-      BucketName: !Ref LogBucketName
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        IgnorePublicAcls: true
-        BlockPublicPolicy: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
+#  # Image builder log bucket
+#  ImageBuilderLogBucket:
+#    Type: AWS::S3::Bucket
+#    # If you want to delete the stack, but keep the bucket, set the DeletionPolicy to Retain.
+#    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html
+#    DeletionPolicy: Retain
+#    Properties:
+#      BucketName: !Ref LogBucketName
+#      BucketEncryption:
+#        ServerSideEncryptionConfiguration:
+#          - ServerSideEncryptionByDefault:
+#              SSEAlgorithm: AES256
+#      PublicAccessBlockConfiguration:
+#        BlockPublicAcls: true
+#        IgnorePublicAcls: true
+#        BlockPublicPolicy: true
+#        RestrictPublicBuckets: true
+#      VersioningConfiguration:
+#        Status: Enabled
 
   # EC2 instance role
   # By default, AWS Services do not have permission to perform actions on your instances. This grants
@@ -114,10 +114,10 @@ Resources:
         Ref: InstanceProfile
       SnsTopicArn: !Ref SnsTopicArn
       # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
-      Logging:
-        S3Logs:
-          S3BucketName:
-            Ref: ImageBuilderLogBucket
+#      Logging:
+#        S3Logs:
+#          S3BucketName:
+#            Ref: ImageBuilderLogBucket
           # S3KeyPrefix: 'my-imagebuilder-bucket-prefix'
       # If you would like to keep the instance running after a failed build, set TerminateInstanceOnFailure to false.
       # TerminateInstanceOnFailure: false
