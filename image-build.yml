@@ -18,6 +18,10 @@
     Default: 6
     Description: Unreal Engine minor version
 
+  SnsTopicArn:
+    Type: String
+    Description: SNS topic ARN for notifications
+
 Resources:
   # Image builder log bucket
   ImageBuilderLogBucket:
@@ -108,6 +112,7 @@ Resources:
         - !Ref InstanceType
       InstanceProfileName:
         Ref: InstanceProfile
+      SnsTopicArn: !Ref SnsTopicArn
       # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
       Logging:
         S3Logs:
