@@ -242,7 +242,7 @@ Resources:
                       Write-Host "Downloading Visual Studio Community installer..."
 
                       Invoke-WebRequest `
-                        -Uri "https://aka.ms/vs/18/release/vs_community.exe" `
+                        -Uri "https://aka.ms/vs/stable/vs_community.exe" `
                         -OutFile $InstallerPath
 
                       Write-Host "Installing Visual Studio..."
