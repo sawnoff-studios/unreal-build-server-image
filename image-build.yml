@@ -400,7 +400,8 @@ Resources:
               Fn::Sub:
                 WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
             Description:
-              Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
+              Fn::Sub:
+                Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
 
   # Image pipeline
   ImagePipeline:
