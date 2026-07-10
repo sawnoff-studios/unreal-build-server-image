@@ -282,6 +282,88 @@ Resources:
                           throw "Visual Studio not detected"
                       }
 
+  EpicGamesLauncherComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-Epic-Games-Launcher
+      Description: Installs the Epic Games Launcher
+      Platform: Windows
+      Version: 1.0.0
+      ChangeDescription: Initial Epic Games Launcher installation component
+
+      Data: |
+        name: Install Epic Games Launcher
+        description: Downloads and installs Epic Games Launcher
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+
+              - name: DownloadEpicInstaller
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $installerUrl = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi"
+                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.msi"
+
+                      Write-Host "Downloading Epic Games Launcher..."
+                      Invoke-WebRequest `
+                        -Uri $installerUrl `
+                        -OutFile $installerPath
+
+                      if (!(Test-Path $installerPath)) {
+                          throw "Epic Games Launcher installer download failed"
+                      }
+
+              - name: InstallEpicLauncher
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.msi"
+
+                      Write-Host "Installing Epic Games Launcher..."
+
+                      Start-Process `
+                        -FilePath "msiexec.exe" `
+                        -ArgumentList "/i `"$installerPath`" /qn /norestart" `
+                        -Wait `
+                        -PassThru
+
+                      if (Test-Path $installerPath) {
+                          Remove-Item $installerPath -Force
+                      }
+
+              - name: VerifyEpicInstall
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $paths = @(
+                        "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe",
+                        "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe"
+                      )
+
+                      $installed = $false
+
+                      foreach ($path in $paths) {
+                          if (Test-Path $path) {
+                              $installed = $true
+                              Write-Host "Epic Games Launcher installed: $path"
+                              break
+                          }
+                      }
+
+                      if (-not $installed) {
+                          throw "Epic Games Launcher installation verification failed"
+                      }
+
   # Windows Server 2025 base image
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
@@ -301,6 +383,7 @@ Resources:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref VisualStudio2026CommunityComponent
+        - ComponentArn: !Ref EpicGamesLauncherComponent
 
   # AMI distribution
   DistributionConfiguration:
