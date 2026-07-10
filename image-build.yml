@@ -158,7 +158,7 @@ Resources:
   GitLfsComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: Git
+      Name: Git LFS
       Version: 1.0.0
       Description: Install Git LFS for Windows
       Platform: Windows
