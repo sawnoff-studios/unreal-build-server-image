@@ -173,6 +173,7 @@ Resources:
                     - |
                       git --version
 
+
   # Custom component to install Git LFS
   GitLfsComponent:
     Type: AWS::ImageBuilder::Component
@@ -224,6 +225,94 @@ Resources:
                   commands:
                     - |
                       git config --global lfs.concurrenttransfers 64
+
+
+  # Custom component to install Visual Studio 2022 Community Edition
+  VisualStudio2026CommunityComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-VisualStudio-2022-Community
+      Platform: Windows
+      Version: 1.0.0
+      Description: Installs Visual Studio 2022 Community Edition
+      Data: |
+        name: Install Visual Studio 2022 Community
+        description: Downloads and installs Visual Studio 2022 Community
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: InstallVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $InstallerPath = "C:\Windows\Temp\vs_community.exe"
+
+                      Write-Host "Downloading Visual Studio Community installer..."
+
+                      Invoke-WebRequest `
+                        -Uri "https://aka.ms/vs/17/release/vs_community.exe" `
+                        -OutFile $InstallerPath
+
+                      Write-Host "Installing Visual Studio..."
+
+                      $process = Start-Process `
+                        -FilePath $InstallerPath `
+                        -ArgumentList @(
+                          "--quiet",
+                          "--wait",
+                          "--norestart",
+                          "--nocache",
+                          "--add",
+                          "Microsoft.VisualStudio.Workload.NativeGame",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64.Spectre",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64.Spectre",
+                          "--includeRecommended"
+                        ) `
+                        -Wait `
+                        -PassThru
+
+                      $exitCode = $process.ExitCode
+                      Write-Host "Visual Studio installer exited with code: $exitCode"
+        
+                      if ($exitCode -ne 0) {
+                        throw "Visual Studio installation failed with exit code $exitCode"
+                      }
+        
+                      if ($exitCode -eq 3010) {
+                        Write-Host "Visual Studio installation requires a reboot (exit code 3010). Continuing."
+                      }
+
+                      Write-Host "Cleaning up installer..."
+
+                      Remove-Item `
+                        -Path $InstallerPath `
+                        -Force
+
+                      Write-Host "Visual Studio installation complete."
+        
+              - name: VerifyVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+                      $installPath = & $vswhere -latest -property installationPath
+                      if (-not $installPath) {
+                        throw "Visual Studio not detected"
+                      }
+                      Write-Host "Visual Studio installed at: $installPath"
+
 
   # Custom component to install Unreal Engine from source
   UnrealEngineComponent:
@@ -380,94 +469,6 @@ Resources:
                       }
 
                       Write-Host "Unreal Engine Editor compiled successfully"
-  
-  
-
-  # Custom component to install Visual Studio 2022 Community Edition
-  VisualStudio2026CommunityComponent:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: Install-VisualStudio-2022-Community
-      Platform: Windows
-      Version: 1.0.0
-      Description: Installs Visual Studio 2022 Community Edition
-      Data: |
-        name: Install Visual Studio 2022 Community
-        description: Downloads and installs Visual Studio 2022 Community
-        schemaVersion: 1.0
-
-        phases:
-          - name: build
-            steps:
-              - name: InstallVisualStudio
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-
-                      $InstallerPath = "C:\Windows\Temp\vs_community.exe"
-
-                      Write-Host "Downloading Visual Studio Community installer..."
-
-                      Invoke-WebRequest `
-                        -Uri "https://aka.ms/vs/17/release/vs_community.exe" `
-                        -OutFile $InstallerPath
-
-                      Write-Host "Installing Visual Studio..."
-
-                      $process = Start-Process `
-                        -FilePath $InstallerPath `
-                        -ArgumentList @(
-                          "--quiet",
-                          "--wait",
-                          "--norestart",
-                          "--nocache",
-                          "--add",
-                          "Microsoft.VisualStudio.Workload.NativeGame",
-                          "--add",
-                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64",
-                          "--add",
-                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64",
-                          "--add",
-                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64.Spectre",
-                          "--add",
-                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64.Spectre",
-                          "--includeRecommended"
-                        ) `
-                        -Wait `
-                        -PassThru
-
-                      $exitCode = $process.ExitCode
-                      Write-Host "Visual Studio installer exited with code: $exitCode"
-                        
-                      if ($exitCode -ne 0) {
-                        throw "Visual Studio installation failed with exit code $exitCode"
-                      }
-      
-                      if ($exitCode -eq 3010) {
-                        Write-Host "Visual Studio installation requires a reboot (exit code 3010). Continuing."
-                      }
-
-                      Write-Host "Cleaning up installer..."
-
-                      Remove-Item `
-                        -Path $InstallerPath `
-                        -Force
-
-                      Write-Host "Visual Studio installation complete."
-        
-              - name: VerifyVisualStudio
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-                      $installPath = & $vswhere -latest -property installationPath
-                      if (-not $installPath) {
-                        throw "Visual Studio not detected"
-                      }
-                      Write-Host "Visual Studio installed at: $installPath"
 
 
   # Windows Server 2025 base image
@@ -496,6 +497,7 @@ Resources:
         - ComponentArn: !Ref VisualStudio2026CommunityComponent
         - ComponentArn: !Ref UnrealEngineComponent
 
+
   # AMI distribution
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
@@ -514,6 +516,7 @@ Resources:
               Fn::Sub:
                 Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
 
+
   # Image pipeline
   ImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
@@ -529,6 +532,7 @@ Resources:
         Ref: DistributionConfiguration
       Status:
         ENABLED
+
 
 Outputs:
   ImageBuilderPipelineArn:
