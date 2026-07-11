@@ -1,4 +1,4 @@
-name: Run Image Pipeline
+name: Run Image Build Pipeline
 on:
   workflow_dispatch:
 env:
