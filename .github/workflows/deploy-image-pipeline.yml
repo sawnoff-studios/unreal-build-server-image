@@ -7,12 +7,12 @@ on:
     paths:
       - image-pipeline-infra.yml
 env:
-  PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
+  PROJECT_NAME: "UnrealBuildServerImage"
+  INSTANCE_TYPE: "m5.xlarge"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   SOURCE_CODE_BUCKET_NAME: "unreal-build-server-files"
   SNS_TOPIC_ARN: "arn:aws:sns:ap-southeast-2:932297900301:UnrealBuildServerImage"
-  INSTANCE_TYPE: "m5.xlarge"
 permissions:
   id-token: write
   contents: read
