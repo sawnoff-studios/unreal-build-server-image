@@ -222,7 +222,7 @@ Resources:
                     - |
                       $ErrorActionPreference = "Stop"
 
-                      $installerUrl = "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi"
+                      $installerUrl = "https://epicgames-download1.akamaized.net/Builds/UnrealEngineLauncher/Installers/Windows/EpicInstaller-20.1.0.exe"
                       $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.msi"
 
                       Write-Host "Downloading Epic Games Launcher..."
