@@ -31,4 +31,4 @@ jobs:
           echo "PIPELINE_ARN=$IMAGE_STACK_PIPELINE_ARN" >> $GITHUB_OUTPUT
       - name: Start pipeline execution
         run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ env.PIPELINE_ARN }}
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.get-stack-name.outputs.PIPELINE_ARN }}
