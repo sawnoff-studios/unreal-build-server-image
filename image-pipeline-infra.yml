@@ -223,7 +223,7 @@ Resources:
                       $ErrorActionPreference = "Stop"
 
                       $installerUrl = "https://epicgames-download1.akamaized.net/Builds/UnrealEngineLauncher/Installers/Windows/EpicInstaller-20.1.0.exe"
-                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.msi"
+                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.exe"
 
                       Write-Host "Downloading Epic Games Launcher..."
                       Invoke-WebRequest `
@@ -241,15 +241,15 @@ Resources:
                     - |
                       $ErrorActionPreference = "Stop"
 
-                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.msi"
+                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.exe"
 
-                      Write-Host "Installing Epic Games Launcher..."
-
-                      Start-Process `
-                        -FilePath "msiexec.exe" `
-                        -ArgumentList "/i `"$installerPath`" /qn /norestart" `
-                        -Wait `
-                        -PassThru
+                      $process = Start-Process -FilePath $installerPath `
+                        -ArgumentList "/quiet", "/install" `
+                        -Wait -PassThru
+              
+                      if ($process.ExitCode -ne 0) {
+                          throw "Installation failed with exit code $($process.ExitCode)"
+                      }
 
                       if (Test-Path $installerPath) {
                           Remove-Item $installerPath -Force
