@@ -254,7 +254,7 @@ Resources:
 
                       Write-Host "Installing Visual Studio..."
 
-                      Start-Process `
+                      $process = Start-Process `
                         -FilePath $InstallerPath `
                         -ArgumentList @(
                           "--quiet",
@@ -268,8 +268,15 @@ Resources:
                         -Wait `
                         -PassThru
 
-                      if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) {
-                          throw "Visual Studio installation failed with exit code $LASTEXITCODE"
+                      $exitCode = $process.ExitCode
+                      Write-Host "Visual Studio installer exited with code: $exitCode"
+                        
+                      if ($exitCode -ne 0) {
+                        throw "Visual Studio installation failed with exit code $exitCode"
+                      }
+      
+                      if ($exitCode -eq 3010) {
+                        Write-Host "Visual Studio installation requires a reboot (exit code 3010). Continuing."
                       }
 
                       Write-Host "Cleaning up installer..."
