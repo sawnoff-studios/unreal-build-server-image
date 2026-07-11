@@ -10,6 +10,7 @@ env:
   PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
+  SOURCE_CODE_BUCKET_NAME: "unreal-build-server-files"
   SNS_TOPIC_ARN: "arn:aws:sns:ap-southeast-2:932297900301:UnrealBuildServerImage"
   INSTANCE_TYPE: "m5.xlarge"
 permissions:
@@ -37,5 +38,5 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},SnsTopicArn=${{ env.SNS_TOPIC_ARN }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},SourceCodeBucketName=${{ env.SOURCE_CODE_BUCKET_NAME }},SnsTopicArn=${{ env.SNS_TOPIC_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'

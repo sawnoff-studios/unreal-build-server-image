@@ -8,6 +8,10 @@
     Type: String
     Description: Name of the S3 bucket for image builder logs
 
+  SourceCodeBucketName:
+    Type: String
+    Description: Name of the S3 bucket for Unreal Engine source code
+
   SnsTopicArn:
     Type: String
     Description: SNS topic ARN for notifications
@@ -47,6 +51,7 @@ Resources:
                 - !Sub 'ec2.${AWS::URLSuffix}'
       Path: /executionServiceEC2Role/
 
+
   # EC2 instance role logging policy
   # Policy to allow the instance to write to the S3 bucket (via instance role / instance profile).
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
@@ -67,6 +72,27 @@ Resources:
             Resource:
               - Fn::Sub: arn:${AWS::Partition}:s3:::${LogBucketName}/*
 
+
+  # EC2 instance role source code bucket policy
+  # Policy to allow the instance to download Unreal Engine source code
+  InstanceSourceCodePolicy:
+    Type: AWS::IAM::Policy
+    Metadata:
+      Comment: Allows the instance to download files from an S3 bucket.
+    Properties:
+      PolicyName: ImageBuilderSourceCodeBucketPolicy
+      Roles:
+        - Ref: InstanceRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              - Fn::Sub: arn:${AWS::Partition}:s3:::${SourceCodeBucketName}/*
+
+
   # EC2 instance profile
   # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
   # This profile will be used during the image build process.
@@ -77,6 +103,7 @@ Resources:
       InstanceProfileName: UnrealBuildServerImageInstanceProfile
       Roles:
         - Ref: InstanceRole
+
 
   # Build instance configuration
   # Specifies the infrastructure within which to build and test your image.
@@ -99,6 +126,7 @@ Resources:
       # TerminateInstanceOnFailure: false
       # If you do not have a default VPC or want to use a different VPC, you must specify the subnet ID to use
       # SubnetId: 'subnet-id'
+
 
   # Custom component to install Git
   GitComponent:
@@ -197,107 +225,164 @@ Resources:
                     - |
                       git config --global lfs.concurrenttransfers 64
 
-  EpicGamesLauncherComponent:
+  # Custom component to install Unreal Engine from source
+  UnrealEngineComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: Install-Epic-Games-Launcher
-      Description: Installs the Epic Games Launcher
+      Name: Install-Unreal-Engine
+      Description: Installs Unreal Engine
       Platform: Windows
       Version: 1.0.0
-      ChangeDescription: Initial Epic Games Launcher installation component
+      ChangeDescription: Initial Unreal Engine component
 
       Data: |
-        name: Install Epic Games Launcher
-        description: Downloads and installs Epic Games Launcher
+        name: Install Unreal Engine
+        description: Downloads and installs Unreal Engine from source
         schemaVersion: 1.0
 
         phases:
-          - name: build
+          - name: download
             steps:
-
-              - name: DownloadEpicInstaller
+              - name: DownloadUnrealEngineSource
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
+        
+                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
-                      $installerUrl = "https://epicgames-download1.akamaized.net/Builds/UnrealEngineLauncher/Installers/Windows/EpicInstaller-20.1.0.exe"
-                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.exe"
+                      Write-Host "Downloading Unreal Engine source..."
+                      aws s3 cp s3://unreal-build-server-files/UnrealEngine-5.6.1-release.zip $ZipFilePath
 
-                      Write-Host "Downloading Epic Games Launcher..."
-                      Invoke-WebRequest `
-                        -Uri $installerUrl `
-                        -OutFile $installerPath
-
-                      if (!(Test-Path $installerPath)) {
-                          throw "Epic Games Launcher installer download failed"
+                      if (!(Test-Path $ZipFilePath)) {
+                          throw "Unreal Engine source download failed"
                       }
-
-              - name: InstallEpicLauncher
+        
+              - name: ExtractUnrealEngineSource
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
+        
+                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
-                      $installerPath = "C:\Windows\Temp\EpicGamesLauncherInstaller.exe"
-
-                      $process = Start-Process -FilePath $installerPath `
-                        -ArgumentList "/quiet", "/install" `
-                        -Wait -PassThru
+                      Write-Host "Extracting Unreal Engine source..."
+                      Expand-Archive -Path $ZipFilePath -DestinationPath "C:\UnrealEngine"
+                      Remove-Item -Path $ZipFilePath -Force
               
-                      if ($process.ExitCode -ne 0) {
-                          throw "Installation failed with exit code $($process.ExitCode)"
-                      }
-
-                      if (Test-Path $installerPath) {
-                          Remove-Item $installerPath -Force
-                      }
-
-              - name: VerifyEpicInstall
+              - name: VerifyUnrealEngineSource
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
-                      Write-Host "Verifying Epic Games Launcher installation..."
-                      
-                        # Check registry for install location
-                        $regPaths = @(
-                        "HKLM:\SOFTWARE\WOW6432Node\EpicGames\Unreal Engine",
-                        "HKLM:\SOFTWARE\EpicGames",
-                        "HKCU:\SOFTWARE\Epic Games"
-                        )
-                        
-                        $found = $false
-                        foreach ($regPath in $regPaths) {
-                          if (Test-Path $regPath) {
-                            Write-Host "Registry key found: $regPath"
-                            $found = $true
-                        }
+                      $ErrorActionPreference = "Stop"
+
+                      $UnrealPath = "C:\UnrealEngine"
+
+                      Write-Host "Verifying Unreal Engine source extraction..."
+
+                      if (!(Test-Path $UnrealPath)) {
+                          throw "Unreal Engine directory not found at $UnrealPath"
                       }
-                      
-                      # Also search common filesystem locations
-                      $searchPaths = @(
-                        "C:\Program Files (x86)\Epic Games",
-                        "C:\Program Files\Epic Games",
-                        "C:\Epic Games",
-                        "C:\ProgramData\Epic",
-                        "C:\Users\*\AppData\Local\EpicGamesLauncher"
-                      )
-                        
-                      foreach ($sp in $searchPaths) {
-                        if (Test-Path $sp) {
-                          Write-Host "Found installation at: $sp"
-                            $found = $true
-                          }
-                        }
-                        
-                        if (-not $found) {
-                        throw "Epic Games Launcher installation verification failed - no registry keys or install directories found"
+
+                      $SetupBatch = Join-Path $UnrealPath "Setup.bat"
+                      if (!(Test-Path $SetupBatch)) {
+                          throw "Setup.bat not found - extraction may have failed"
                       }
-                      
-                      Write-Host "Verification passed."
+
+                      $GenerateProjectFilesBatch = Join-Path $UnrealPath "GenerateProjectFiles.bat"
+                      if (!(Test-Path $GenerateProjectFilesBatch)) {
+                          throw "GenerateProjectFiles.bat not found - extraction may have failed"
+                      }
+
+                      $BuildBatch = Join-Path $UnrealPath "Engine\Build\BatchFiles\Build.bat"
+                      if (!(Test-Path $BuildBatch)) {
+                          throw "Build.bat not found - extraction may have failed"
+                      }
+
+                      Write-Host "Unreal Engine source verified successfully at $UnrealPath"
+        
+          - name: compile
+            steps:
+              - name: DownloadDependencies
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $UnrealPath = "C:\UnrealEngine"
+
+                      Write-Host "Downloading Unreal Engine dependencies..."
+
+                      Set-Location $UnrealPath
+
+                      $process = Start-Process `
+                        -FilePath ".\Setup.bat" `
+                        -NoNewWindow `
+                        -Wait `
+                        -PassThru
+
+                      if ($process.ExitCode -ne 0) {
+                        throw "Setup.bat failed with exit code $($process.ExitCode)"
+                      }
+
+                      Write-Host "Dependencies downloaded successfully"
+
+              - name: GenerateProjectFiles
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $UnrealPath = "C:\UnrealEngine"
+
+                      Write-Host "Generating Unreal Engine project files..."
+
+                      Set-Location $UnrealPath
+
+                      $process = Start-Process `
+                        -FilePath ".\GenerateProjectFiles.bat" `
+                        -NoNewWindow `
+                        -Wait `
+                        -PassThru
+
+                      if ($process.ExitCode -ne 0) {
+                        throw "GenerateProjectFiles.bat failed with exit code $($process.ExitCode)"
+                      }
+
+                      Write-Host "Project files generated successfully"
+
+              - name: CompileUnrealEditor
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $UnrealPath = "C:\UnrealEngine"
+
+                      Write-Host "Compiling Unreal Engine Editor..."
+
+                      Set-Location $UnrealPath
+
+                      $process = Start-Process `
+                        -FilePath ".\Engine\Build\BatchFiles\Build.bat" `
+                        -ArgumentList "UnrealEditor", "Win64", "Development" `
+                        -NoNewWindow `
+                        -Wait `
+                        -PassThru
+
+                      if ($process.ExitCode -ne 0) {
+                        throw "Build.bat failed with exit code $($process.ExitCode)"
+                      }
+
+                      Write-Host "Unreal Engine Editor compiled successfully"
+  
+  
 
   # Custom component to install Visual Studio 2022 Community Edition
   VisualStudio2026CommunityComponent:
@@ -385,6 +470,7 @@ Resources:
                       }
                       Write-Host "Visual Studio installed at: $installPath"
 
+
   # Windows Server 2025 base image
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
@@ -408,7 +494,7 @@ Resources:
       Components:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
-        - ComponentArn: !Ref EpicGamesLauncherComponent
+        - ComponentArn: !Ref UnrealEngineComponent
 #        - ComponentArn: !Ref VisualStudio2026CommunityComponent
 
   # AMI distribution
