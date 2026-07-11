@@ -4,6 +4,7 @@ on:
 env:
   PROJECT_NAME: "UnrealBuildServerImageLogBucket"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
+  IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
 permissions:
   id-token: write
   contents: read
