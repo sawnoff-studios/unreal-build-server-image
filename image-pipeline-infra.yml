@@ -241,7 +241,7 @@ Resources:
         schemaVersion: 1.0
 
         phases:
-          - name: download
+          - name: build
             steps:
               - name: DownloadUnrealEngineSource
                 action: ExecutePowerShell
