@@ -9,7 +9,7 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  DeployStack:
+  RunImagePipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
