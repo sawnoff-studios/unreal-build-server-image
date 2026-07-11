@@ -221,17 +221,17 @@ Resources:
                     - |
                       git config --global lfs.concurrenttransfers 64
 
-  # Custom component to install Visual Studio 2026 Community Edition
+  # Custom component to install Visual Studio 2022 Community Edition
   VisualStudio2026CommunityComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: Install-VisualStudio-2026-Community
+      Name: Install-VisualStudio-2022-Community
       Platform: Windows
       Version: 1.0.0
-      Description: Installs Visual Studio 2026 Community Edition
+      Description: Installs Visual Studio 2022 Community Edition
       Data: |
-        name: Install Visual Studio 2026 Community
-        description: Downloads and installs Visual Studio 2026 Community
+        name: Install Visual Studio 2022 Community
+        description: Downloads and installs Visual Studio 2022 Community
         schemaVersion: 1.0
 
         phases:
@@ -249,7 +249,7 @@ Resources:
                       Write-Host "Downloading Visual Studio Community installer..."
 
                       Invoke-WebRequest `
-                        -Uri "https://aka.ms/vs/stable/vs_community.exe" `
+                        -Uri "https://aka.ms/vs/17/release/vs_community.exe" `
                         -OutFile $InstallerPath
 
                       Write-Host "Installing Visual Studio..."
