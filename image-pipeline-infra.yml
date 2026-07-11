@@ -1,12 +1,16 @@
 ﻿Parameters:
-  LogBucketName:
-    Type: String
-    Description: Name of the S3 bucket for image builder logs
-
   InstanceType:
     Type: String
     Default: m5.xlarge
     Description: EC2 instance type used during image build
+
+  LogBucketName:
+    Type: String
+    Description: Name of the S3 bucket for image builder logs
+
+  SnsTopicArn:
+    Type: String
+    Description: SNS topic ARN for notifications
 
   UnrealMajorVersion:
     Type: String
@@ -17,10 +21,6 @@
     Type: String
     Default: 6
     Description: Unreal Engine minor version
-
-  SnsTopicArn:
-    Type: String
-    Description: SNS topic ARN for notifications
 
 Resources:
   # EC2 instance role
