@@ -338,14 +338,13 @@ Resources:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
-        
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
-
+                      
                       Write-Host "Downloading Unreal Engine source..."
-                      aws s3 cp s3://unreal-build-server-files/UnrealEngine-5.6.1-release.zip $ZipFilePath
-
+                      Read-S3Object -BucketName unreal-build-server-files -Key UnrealEngine-5.6.1-release.zip -File $ZipFilePath
+                      
                       if (!(Test-Path $ZipFilePath)) {
-                          throw "Unreal Engine source download failed"
+                        throw "Unreal Engine source download failed"
                       }
         
               - name: ExtractUnrealEngineSource
