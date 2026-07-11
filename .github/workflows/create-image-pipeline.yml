@@ -1,10 +1,11 @@
 name: Create Image Build Pipeline
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
-      - create-image-pipeline.yml
+      - image-pipeline-infra.yml
 env:
   PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
