@@ -23,7 +23,8 @@ jobs:
       - name: Get stack name
         id: get-stack-name
         run: |
-          aws cloudformation describe-stacks --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} --query "Stacks[0].Outputs[?OutputKey=='ImageBuilderPipelineArn'].OutputValue" --output text
+          $pipelineArn = aws cloudformation describe-stacks --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} --query "Stacks[0].Outputs[?OutputKey=='ImageBuilderPipelineArn'].OutputValue" --output text
+          echo $pipelineArn >> $GITHUB_ENV
       - name: Start Image Pipeline Execution
         run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.deploy.outputs.PipelineArn }}
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ env.pipelineArn }}
