@@ -1,0 +1,54 @@
+Parameters:
+  LogBucketName:
+    Type: String
+    Description: Name of the S3 bucket for EC2 Image Builder logs
+
+Resources:
+    # Image builder log bucket
+    ImageBuilderLogBucket:
+      Type: AWS::S3::Bucket
+      # If you want to delete the stack, but keep the bucket, set the DeletionPolicy to Retain.
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: !Ref LogBucketName
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          IgnorePublicAcls: true
+          BlockPublicPolicy: true
+          RestrictPublicBuckets: true
+        VersioningConfiguration:
+          Status: Enabled
+
+  # EC2 instance role logging policy
+  # Policy to allow the instance to write to the S3 bucket (via instance role / instance profile).
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
+    InstanceRoleLoggingPolicy:
+      Type: AWS::IAM::Policy
+      Metadata:
+        Comment: Allows the instance to save log files to an S3 bucket.
+      Properties:
+        PolicyName: ImageBuilderLogBucketPolicy
+        Roles:
+          - Ref: InstanceRole
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Action:
+                - s3:PutObject
+              Effect: Allow
+              Resource:
+                - Fn::Sub:
+                    - arn:${AWS::Partition}:s3:::${BUCKET}/*
+                    - BUCKET:
+                        Ref: ImageBuilderLogBucket
+
+Outputs:
+  PipelineArn:
+    Description: Image Builder Log S3 Bucket ARN
+    Value:
+      Ref: ImageBuilderLogBucket
