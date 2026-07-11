@@ -279,6 +279,7 @@ Resources:
                     - |
                       $ErrorActionPreference = "Stop"
 
+
                       $UnrealPath = "C:\UnrealEngine"
 
                       Write-Host "Verifying Unreal Engine source extraction..."
@@ -304,8 +305,6 @@ Resources:
 
                       Write-Host "Unreal Engine source verified successfully at $UnrealPath"
         
-          - name: compile
-            steps:
               - name: DownloadDependencies
                 action: ExecutePowerShell
                 inputs:
