@@ -493,8 +493,8 @@ Resources:
       Components:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
+        - ComponentArn: !Ref VisualStudio2026CommunityComponent
         - ComponentArn: !Ref UnrealEngineComponent
-#        - ComponentArn: !Ref VisualStudio2026CommunityComponent
 
   # AMI distribution
   DistributionConfiguration:
