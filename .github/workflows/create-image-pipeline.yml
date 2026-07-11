@@ -1,10 +1,10 @@
-name: Build Image
+name: Create Image Build Pipeline
 on:
   push:
     branches:
       - main
     paths:
-      - build-image.yml
+      - create-image-pipeline.yml
 env:
   PROJECT_NAME: "UnrealBuildServerImage"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
@@ -35,6 +35,6 @@ jobs:
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/image-build-infra.yml
+          template: ${{ github.workspace }}/image-pipeline-infra.yml
           parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},SnsTopicArn=${{ env.SNS_TOPIC_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
