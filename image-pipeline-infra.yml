@@ -381,7 +381,7 @@ Resources:
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref EpicGamesLauncherComponent
-        - ComponentArn: !Ref VisualStudio2026CommunityComponent
+#        - ComponentArn: !Ref VisualStudio2026CommunityComponent
 
   # AMI distribution
   DistributionConfiguration:
