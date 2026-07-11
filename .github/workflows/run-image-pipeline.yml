@@ -20,11 +20,15 @@ jobs:
           aws-region: ap-southeast-2
       - name: Clone repository
         uses: actions/checkout@v7
-      - name: Get stack name
+      - name: Get pipeline ARN
         id: get-stack-name
         run: |
-          $pipelineArn = aws cloudformation describe-stacks --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} --query "Stacks[0].Outputs[?OutputKey=='ImageBuilderPipelineArn'].OutputValue" --output text
-          echo $pipelineArn >> $GITHUB_ENV
-      - name: Start Image Pipeline Execution
+          IMAGE_STACK_PIPELINE_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='ImageBuilderPipelineArn'].OutputValue" \
+            --output text)
+          
+          echo "PIPELINE_ARN=$IMAGE_STACK_PIPELINE_ARN" >> $GITHUB_OUTPUT
+      - name: Start pipeline execution
         run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ env.pipelineArn }}
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ env.PIPELINE_ARN }}
