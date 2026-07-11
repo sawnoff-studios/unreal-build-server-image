@@ -341,6 +341,14 @@ Resources:
                           "--nocache",
                           "--add",
                           "Microsoft.VisualStudio.Workload.NativeGame",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64.Spectre",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64.Spectre",
                           "--includeRecommended"
                         ) `
                         -Wait `
