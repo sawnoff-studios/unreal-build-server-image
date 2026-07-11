@@ -1,4 +1,4 @@
-name: Create Image Build Pipeline
+name: Deploy Image Build Pipeline
 on:
   workflow_dispatch:
   push:

@@ -1,4 +1,4 @@
-name: Create Log Bucket
+name: Deploy Log Bucket
 on:
   workflow_dispatch:
 env:
