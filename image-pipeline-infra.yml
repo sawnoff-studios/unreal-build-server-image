@@ -64,9 +64,7 @@ Resources:
           - Action:
               - s3:PutObject
             Effect: Allow
-            Resource:
-              - Fn::Sub:
-                  - arn:${AWS::Partition}:s3:::${LogBucketName}/*
+            Resource: arn:${AWS::Partition}:s3:::${LogBucketName}/*
 
   # EC2 instance profile
   # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
