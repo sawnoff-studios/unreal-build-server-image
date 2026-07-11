@@ -25,5 +25,5 @@ jobs:
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/create-log-bucket.yml
+          template: ${{ github.workspace }}/log-bucket-infra.yml
           parameter-overrides: "LogBucketName=${{ env.LOG_BUCKET_NAME }}"
