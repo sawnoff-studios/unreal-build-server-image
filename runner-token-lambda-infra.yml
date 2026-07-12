@@ -94,7 +94,8 @@ Resources:
             !Ref GitHubSecretName
           GITHUB_ORG:
             !Ref GitHubOrganization
-      ZipFile: !Ref LambdaZipFilePath
+      Code:
+        ZipFile: !Ref LambdaZipFilePath
 
 
   # Permission for EC2 instances
