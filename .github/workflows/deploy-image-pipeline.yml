@@ -7,9 +7,10 @@ on:
       - main
     paths:
       - image-pipeline-infra.yml
-      -
+
 env:
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
+  AWS_REGION: "ap-southeast-2"
   PROJECT_NAME: "UnrealBuildServerImage"
   INSTANCE_TYPE: "c5.xlarge"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
@@ -30,7 +31,7 @@ jobs:
         with:
           role-to-assume: ${{ env.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
-          aws-region: ap-southeast-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Clone repository
         uses: actions/checkout@v7
