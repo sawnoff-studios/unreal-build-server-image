@@ -353,11 +353,10 @@ Resources:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
-        
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
                       Write-Host "Extracting Unreal Engine source..."
-                      Expand-Archive -Path $ZipFilePath -DestinationPath "C:\UnrealEngine"
+                      Expand-Archive -Path $ZipFilePath -DestinationPath "C:\Program Files\Epic Games\UE_5.5\"
                       Remove-Item -Path $ZipFilePath -Force
               
               - name: VerifyUnrealEngine
@@ -366,8 +365,7 @@ Resources:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
-
-                      $UnrealPath = "C:\UnrealEngine"
+                      $UnrealPath = "C:\Program Files\Epic Games\UE_5.5\"
 
                       Write-Host "Verifying Unreal Engine extraction..."
 
