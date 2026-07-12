@@ -8,6 +8,7 @@ on:
     paths:
       - runner-token-lambda-infra.yml
       - runner-token/**
+      - allow-ec2-invoke-lambda-infra.yml
 
 env:
   PROJECT_NAME: "UnrealBuildServerRunnerTokenLambda"
