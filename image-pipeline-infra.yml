@@ -73,8 +73,8 @@ Resources:
               - Fn::Sub: arn:${AWS::Partition}:s3:::${LogBucketName}/*
 
 
-  # EC2 instance role source code bucket policy
-  # Policy to allow the instance to download Unreal Engine source code
+  # EC2 instance role files bucket policy
+  # Policy to allow the instance to download Unreal Engine files
   InstanceFilesBucketPolicy:
     Type: AWS::IAM::Policy
     Metadata:
@@ -436,7 +436,7 @@ Resources:
                       $ErrorActionPreference = "Stop"
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
                       
-                      Write-Host "Downloading Unreal Engine source..."
+                      Write-Host "Downloading Unreal Engine binaries..."
                       Read-S3Object -BucketName unreal-build-server-files -Key UE_5.5.zip -File $ZipFilePath
                       
                       if (!(Test-Path $ZipFilePath)) {
@@ -452,7 +452,7 @@ Resources:
                       $7ZipExePath = "C:\Program Files\7-Zip\7z.exe"
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
-                      Write-Host "Extracting Unreal Engine source..."
+                      Write-Host "Extracting Unreal Engine binaries..."
                       & "C:\Program Files\7-Zip\7z.exe" x -o"C:\Program Files\Epic Games\UE_5.5\" $ZipFilePath -y
                       Remove-Item -Path $ZipFilePath -Force
               
