@@ -1,5 +1,3 @@
-AWSTemplateFormatVersion: '2010-09-09'
-
 Description: Deploys a Lambda function that creates GitHub Actions runner registration tokens using a GitHub App.
 
 Parameters:
