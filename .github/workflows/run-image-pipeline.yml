@@ -1,13 +1,16 @@
 name: Run Image Build Pipeline
 on:
   workflow_dispatch:
+
 env:
   PROJECT_NAME: "RunUnrealBuildServerImagePipeline"
   BUILD_IMAGE_STACK_NAME: "UnrealBuildServerImageStack"
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
   RunImagePipeline:
     runs-on: ubuntu-latest

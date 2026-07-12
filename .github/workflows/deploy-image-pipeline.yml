@@ -1,4 +1,5 @@
 name: Deploy Image Build Pipeline
+
 on:
   workflow_dispatch:
   push:
@@ -6,6 +7,7 @@ on:
       - main
     paths:
       - image-pipeline-infra.yml
+      -
 env:
   IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
   PROJECT_NAME: "UnrealBuildServerImage"
@@ -13,12 +15,15 @@ env:
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   FILES_BUCKET_NAME: "unreal-build-server-files"
   SNS_TOPIC_ARN: "arn:aws:sns:ap-southeast-2:932297900301:UnrealBuildServerImage"
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
   DeployStack:
     runs-on: ubuntu-latest
+
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -26,12 +31,15 @@ jobs:
           role-to-assume: ${{ env.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ap-southeast-2
+
       - name: Clone repository
         uses: actions/checkout@v7
+
       - name: Remove existing CloudFormation stack
         run: |
           aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
           aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME }}Stack
+
       - name: Deploy CloudFormation stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
         id: deploy
