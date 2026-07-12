@@ -1,11 +1,15 @@
 name: Deploy Runner Token Lambda
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+    paths:
+      - ./runner-token
 
 env:
-  IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
+  PROJECT_NAME: "RunUnrealBuildServerImagePipeline"
   AWS_REGION: "ap-southeast-2"
 
 permissions:
@@ -23,7 +27,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.IAM_ROLE }}
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy Lambda Function

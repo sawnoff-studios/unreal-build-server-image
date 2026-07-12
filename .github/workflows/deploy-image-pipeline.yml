@@ -9,13 +9,11 @@ on:
       - image-pipeline-infra.yml
 
 env:
-  IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
-  AWS_REGION: "ap-southeast-2"
   PROJECT_NAME: "UnrealBuildServerImage"
+  AWS_REGION: "ap-southeast-2"
   INSTANCE_TYPE: "c5.xlarge"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   FILES_BUCKET_NAME: "unreal-build-server-files"
-  SNS_TOPIC_ARN: "arn:aws:sns:ap-southeast-2:932297900301:UnrealBuildServerImage"
 
 permissions:
   id-token: write
@@ -29,7 +27,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ env.IAM_ROLE }}
+          role-to-assume: ${{ secrets.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -47,5 +45,5 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ env.SNS_TOPIC_ARN }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'

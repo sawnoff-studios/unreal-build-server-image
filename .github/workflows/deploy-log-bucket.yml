@@ -7,7 +7,6 @@ env:
   PROJECT_NAME: "UnrealBuildServerImageLogBucket"
   AWS_REGION: "ap-southeast-2"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
-  IAM_ROLE: "arn:aws:iam::932297900301:role/UnrealBuildServerImageBuilderRole"
 
 permissions:
   id-token: write
@@ -16,11 +15,12 @@ permissions:
 jobs:
   DeployStack:
     runs-on: ubuntu-latest
+
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ env.IAM_ROLE }}
+          role-to-assume: ${{ secrets.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ${{ env.AWS_REGION }}
 
