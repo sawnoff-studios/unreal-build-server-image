@@ -430,7 +430,7 @@ Resources:
                           throw "Unreal Engine directory not found at $UnrealPath"
                       }
 
-                      $RunUatBatch = Join-Path $UnrealPath "Engine\Build\BatchFiles\RunUAT.bat"
+                      $RunUatBatch = Join-Path $UnrealPath "\Engine\Build\BatchFiles\RunUAT.bat"
         
                       if (!(Test-Path $RunUatBatch)) {
                           throw "RunUAT.bat not found - extraction may have failed"
