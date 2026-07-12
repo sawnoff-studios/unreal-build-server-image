@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Deploys a Lambda function that creates GitHub Actions runner registration tokens using a GitHub App.
+
+Parameters:
+  GitHubOrganization:
+    Type: String
+    Description: GitHub organization name
+
+  GitHubSecretName:
+    Type: String
+    Default: /github/actions/runner-app
+    Description: Secrets Manager secret containing GitHub App credentials
+
+  SecretAppId:
+    Type: String
+    Description: GitHub App ID
+
+  InstallationId:
+    Type: String
+    Description: GitHub App installation ID
+
+  PrivateKey:
+    Type: String
+    Description: GitHub App private key
+
+Resources:
+
+  # Secrets Manager Secret
+  GitHubRunnerAppSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref GitHubSecretName
+
+      Description:
+        GitHub App credentials for Actions runner registration
+
+      SecretString: !Sub
+        {
+          "app_id": "${SecretAppId}",
+          "installation_id": "${InstallationId}",
+          "private_key": "${PrivateKey}"
+        }
+
+
+  # Lambda Execution Role
+  RunnerTokenLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ReadGitHubSecret
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref GitHubRunnerAppSecret
+
+
+  # Permission for EC2 instances
+  AllowEC2InvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        !Ref GitHubRunnerTokenLambda
+      Action:
+        lambda:InvokeFunction
+      Principal:
+        ec2.amazonaws.com
+
+
+Outputs:
+  LambdaArn:
+    Description:
+      Lambda Execution Role ARN
+    Value:
+      !GetAtt RunnerTokenLambdaRole.Arn
