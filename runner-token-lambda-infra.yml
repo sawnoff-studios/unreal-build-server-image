@@ -70,19 +70,6 @@ Resources:
                 Resource:
                   - !Ref GitHubRunnerAppSecret
 
-
-  # Permission for EC2 instances
-  AllowEC2InvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName:
-        !Ref GitHubRunnerTokenLambda
-      Action:
-        lambda:InvokeFunction
-      Principal:
-        ec2.amazonaws.com
-
-
 Outputs:
   LambdaArn:
     Description:
