@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - runner-token-lambda-infra.yml
       - runner-token/**
 
 env:
