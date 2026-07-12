@@ -324,7 +324,7 @@ Resources:
 
 
   # Custom component to install Visual Studio 2022 Community Edition
-  VisualStudio2026CommunityComponent:
+  VisualStudioComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
       Name: Install-VisualStudio-2022-Community
@@ -553,7 +553,7 @@ Resources:
         - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref GitHubActionsRunnerComponent
         - ComponentArn: !Ref UnrealEngineComponent
-        - ComponentArn: !Ref VisualStudio2026CommunityComponent
+        - ComponentArn: !Ref VisualStudioComponent
 
 
   # AMI distribution
