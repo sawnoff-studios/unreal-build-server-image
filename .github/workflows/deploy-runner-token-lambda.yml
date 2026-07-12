@@ -37,3 +37,4 @@ jobs:
           function-name: gitHub-runner-token
           code-artifacts-dir: ./runner-token
           handler: index.handler
+          role: ${{ secrets.LAMBDA_EXECUTION_ROLE_ARN  }}
