@@ -326,13 +326,13 @@ Resources:
 
       Data: |
         name: Install Unreal Engine
-        description: Downloads and installs Unreal Engine from source
+        description: Downloads and extracts Unreal Engine
         schemaVersion: 1.0
 
         phases:
           - name: build
             steps:
-              - name: DownloadUnrealEngineSource
+              - name: DownloadUnrealEngine
                 action: ExecutePowerShell
                 inputs:
                   commands:
@@ -341,13 +341,13 @@ Resources:
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
                       
                       Write-Host "Downloading Unreal Engine source..."
-                      Read-S3Object -BucketName unreal-build-server-files -Key UnrealEngine-5.6.1-release.zip -File $ZipFilePath
+                      Read-S3Object -BucketName unreal-build-server-files -Key UE_5.5.zip -File $ZipFilePath
                       
                       if (!(Test-Path $ZipFilePath)) {
-                        throw "Unreal Engine source download failed"
+                        throw "Unreal Engine download failed"
                       }
         
-              - name: ExtractUnrealEngineSource
+              - name: ExtractUnrealEngine
                 action: ExecutePowerShell
                 inputs:
                   commands:
@@ -360,114 +360,28 @@ Resources:
                       Expand-Archive -Path $ZipFilePath -DestinationPath "C:\UnrealEngine"
                       Remove-Item -Path $ZipFilePath -Force
               
-              - name: VerifyUnrealEngineSource
+              - name: VerifyUnrealEngine
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
 
-
                       $UnrealPath = "C:\UnrealEngine"
 
-                      Write-Host "Verifying Unreal Engine source extraction..."
+                      Write-Host "Verifying Unreal Engine extraction..."
 
                       if (!(Test-Path $UnrealPath)) {
                           throw "Unreal Engine directory not found at $UnrealPath"
                       }
 
-                      $SetupBatch = Join-Path $UnrealPath "Setup.bat"
-                      if (!(Test-Path $SetupBatch)) {
-                          throw "Setup.bat not found - extraction may have failed"
-                      }
-
-                      $GenerateProjectFilesBatch = Join-Path $UnrealPath "GenerateProjectFiles.bat"
-                      if (!(Test-Path $GenerateProjectFilesBatch)) {
-                          throw "GenerateProjectFiles.bat not found - extraction may have failed"
-                      }
-
-                      $BuildBatch = Join-Path $UnrealPath "Engine\Build\BatchFiles\Build.bat"
-                      if (!(Test-Path $BuildBatch)) {
-                          throw "Build.bat not found - extraction may have failed"
-                      }
-
-                      Write-Host "Unreal Engine source verified successfully at $UnrealPath"
+                      $RunUatBatch = Join-Path $UnrealPath ".\Engine\Build\BatchFiles\RunUAT.bat"
         
-              - name: DownloadDependencies
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-
-                      $UnrealPath = "C:\UnrealEngine"
-
-                      Write-Host "Downloading Unreal Engine dependencies..."
-
-                      Set-Location $UnrealPath
-
-                      $process = Start-Process `
-                        -FilePath ".\Setup.bat" `
-                        -NoNewWindow `
-                        -Wait `
-                        -PassThru
-
-                      if ($process.ExitCode -ne 0) {
-                        throw "Setup.bat failed with exit code $($process.ExitCode)"
+                      if (!(Test-Path $RunUatBatch)) {
+                          throw "RunUAT.bat not found - extraction may have failed"
                       }
 
-                      Write-Host "Dependencies downloaded successfully"
-
-              - name: GenerateProjectFiles
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-
-                      $UnrealPath = "C:\UnrealEngine"
-
-                      Write-Host "Generating Unreal Engine project files..."
-
-                      Set-Location $UnrealPath
-
-                      $process = Start-Process `
-                        -FilePath ".\GenerateProjectFiles.bat" `
-                        -NoNewWindow `
-                        -Wait `
-                        -PassThru
-
-                      if ($process.ExitCode -ne 0) {
-                        throw "GenerateProjectFiles.bat failed with exit code $($process.ExitCode)"
-                      }
-
-                      Write-Host "Project files generated successfully"
-
-              - name: CompileUnrealEditor
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-
-                      $UnrealPath = "C:\UnrealEngine"
-
-                      Write-Host "Compiling Unreal Engine Editor..."
-
-                      Set-Location $UnrealPath
-
-                      $process = Start-Process `
-                        -FilePath ".\Engine\Build\BatchFiles\Build.bat" `
-                        -ArgumentList "UnrealEditor", "Win64", "Development" `
-                        -NoNewWindow `
-                        -Wait `
-                        -PassThru
-
-                      if ($process.ExitCode -ne 0) {
-                        throw "Build.bat failed with exit code $($process.ExitCode)"
-                      }
-
-                      Write-Host "Unreal Engine Editor compiled successfully"
+                      Write-Host "Unreal Engine verified successfully at $UnrealPath"
 
 
   GitHubActionsRunnerComponent:
