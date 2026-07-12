@@ -128,6 +128,54 @@ Resources:
       # SubnetId: 'subnet-id'
 
 
+  # Custom component to install CloudWatch Agent
+  CloudWatchAgentComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-CloudWatch-Agent
+      Version: 1.0.0
+      Description: Install Amazon CloudWatch Agent for Windows
+      Platform: Windows
+      Data: |
+        name: Install CloudWatch Agent
+        description: Installs Amazon CloudWatch Agent using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi"
+                      $installer = "C:\Windows\Temp\amazon-cloudwatch-agent.msi"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "msiexec.exe" `
+                        -ArgumentList "/i C:\Windows\Temp\amazon-cloudwatch-agent.msi /qn /norestart" `
+                        -Wait
+
+              - name: VerifyCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $agentPath = "C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent.exe"
+                      if (!(Test-Path $agentPath)) {
+                        throw "CloudWatch Agent not found at $agentPath"
+                      }
+                      Write-Host "CloudWatch Agent installed successfully"
+
   # Custom component to install Git
   GitComponent:
     Type: AWS::ImageBuilder::Component
@@ -450,6 +498,7 @@ Resources:
             VolumeSize: 250
             VolumeType: gp3
       Components:
+        - ComponentArn: !Ref CloudWatchAgentComponent
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref VisualStudio2026CommunityComponent
