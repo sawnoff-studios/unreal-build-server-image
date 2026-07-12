@@ -176,6 +176,56 @@ Resources:
                       }
                       Write-Host "CloudWatch Agent installed successfully"
 
+
+  # Custom component to install 7Zip
+  7ZipComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-7Zip
+      Version: 1.0.0
+      Description: Install 7-Zip for Windows
+      Platform: Windows
+      Data: |
+        name: Install 7-Zip for Windows
+        description: Installs 7-Zip using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: Download7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://www.7-zip.org/a/7z2408-x64.exe"
+                      $installer = "C:\Windows\Temp\7ZipInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: Install7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\7ZipInstaller.exe" `
+                        -ArgumentList "/S" `
+                        -Wait
+
+              - name: Verify7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $7zipPath = "C:\Program Files\7-Zip\7z.exe"
+                      if (!(Test-Path $7zipPath)) {
+                        throw "7-Zip not found at $7zipPath"
+                      }
+                      Write-Host "7-Zip installed successfully"
+  
+  
   # Custom component to install Git
   GitComponent:
     Type: AWS::ImageBuilder::Component
@@ -212,7 +262,6 @@ Resources:
                         -FilePath "C:\Windows\Temp\GitInstaller.exe" `
                         -ArgumentList "/VERYSILENT /NORESTART" `
                         -Wait
-
 
               - name: VerifyGit
                 action: ExecutePowerShell
@@ -258,7 +307,6 @@ Resources:
                         -FilePath "C:\Windows\Temp\GitLfsInstaller.exe" `
                         -ArgumentList "/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART" `
                         -Wait
-
 
               - name: VerifyGitLfs
                 action: ExecutePowerShell
@@ -401,10 +449,11 @@ Resources:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
+                      $7ZipExePath = "C:\Program Files\7-Zip\7z.exe"
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
                       Write-Host "Extracting Unreal Engine source..."
-                      Expand-Archive -Path $ZipFilePath -DestinationPath "C:\Program Files\Epic Games\UE_5.5\"
+                      & "C:\Program Files\7-Zip\7z.exe" x -o"C:\Program Files\Epic Games\UE_5.5\" $ZipFilePath -y
                       Remove-Item -Path $ZipFilePath -Force
               
               - name: VerifyUnrealEngine
@@ -499,6 +548,7 @@ Resources:
             VolumeType: gp3
       Components:
         - ComponentArn: !Ref CloudWatchAgentComponent
+        - ComponentArn: !Ref 7ZipComponent
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref VisualStudio2026CommunityComponent
