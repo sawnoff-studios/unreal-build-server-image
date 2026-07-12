@@ -382,6 +382,7 @@ Resources:
                       Write-Host "Unreal Engine verified successfully at $UnrealPath"
 
 
+  # GitHub Actions Runner component
   GitHubActionsRunnerComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
