@@ -36,6 +36,10 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v7
 
+      - name: Install Lambda dependencies
+        run: npm install
+        working-directory: runner-token
+
       - name: Zip up Lambda
         run: zip -r ${{ env.LAMBDA_ZIP_FILE_PATH }} runner-token
 
