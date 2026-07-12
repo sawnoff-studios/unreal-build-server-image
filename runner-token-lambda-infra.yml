@@ -36,6 +36,7 @@ Resources:
         GitHub App credentials for Actions runner registration
 
       SecretString: !Sub
+        |
         {
           "app_id": "${SecretAppId}",
           "installation_id": "${InstallationId}",
