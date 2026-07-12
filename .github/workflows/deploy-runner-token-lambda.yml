@@ -59,4 +59,4 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}AllowEC2InvokeLambdaStack
           template: ${{ github.workspace }}/allow-ec2-invoke-lambda-infra.yml
-          parameter-overrides: "GitHubRunnerTokenLambda=${{ steps.deploy.outputs.LambdaArn }}"
+          parameter-overrides: "GitHubRunnerTokenLambda=${{ steps.deploy-lambda.outputs.function-arn }}"
