@@ -34,6 +34,6 @@ jobs:
       - name: Deploy Lambda Function
         uses: aws-actions/aws-lambda-deploy@v1.1.0
         with:
-          function-name: GitHub-Runner-Token
+          function-name: gitHub-runner-token
           code-artifacts-dir: ./runner-token
           handler: index.handler
