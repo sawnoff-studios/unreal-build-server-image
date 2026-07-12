@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - image-pipeline-infra.yml
+      - ./image-pipeline-infra.yml
 
 env:
   PROJECT_NAME: "UnrealBuildServerImage"
