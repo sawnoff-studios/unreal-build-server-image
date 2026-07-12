@@ -47,7 +47,7 @@ jobs:
         uses: aws-actions/aws-lambda-deploy@v1.1.0
         id: deploy-lambda
         with:
-          function-name: gitHub-runner-token
+          function-name: github-runner-token
           code-artifacts-dir: ./runner-token
           handler: index.handler
           role: ${{ steps.deploy.outputs.LambdaArn  }}
