@@ -370,6 +370,75 @@ Resources:
                       )
   
 
+  # Custom component to install Unreal Engine from source
+  UnrealEngineComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-Unreal-Engine
+      Description: Installs Unreal Engine
+      Platform: Windows
+      Version: 1.0.0
+      ChangeDescription: Initial Unreal Engine component
+
+      Data: |
+        name: Install Unreal Engine
+        description: Downloads and extracts Unreal Engine
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadUnrealEngine
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
+        
+                      Write-Host "Downloading Unreal Engine binaries..."
+                      Read-S3Object -BucketName unreal-build-server-files -Key UE_5.5.zip -File $ZipFilePath
+        
+                      if (!(Test-Path $ZipFilePath)) {
+                        throw "Unreal Engine download failed"
+                      }
+        
+              - name: ExtractUnrealEngine
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+                      $7ZipExePath = "C:\Program Files\7-Zip\7z.exe"
+                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
+
+                      Write-Host "Extracting Unreal Engine binaries..."
+                      & "C:\Program Files\7-Zip\7z.exe" x -o"C:\Program Files\Epic Games\UE_5.5\" $ZipFilePath -y
+                      Remove-Item -Path $ZipFilePath -Force
+        
+              - name: VerifyUnrealEngine
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+                      $UnrealPath = "C:\Program Files\Epic Games\UE_5.5\"
+
+                      Write-Host "Verifying Unreal Engine extraction..."
+
+                      if (!(Test-Path $UnrealPath)) {
+                          throw "Unreal Engine directory not found at $UnrealPath"
+                      }
+
+                      $RunUatBatch = Join-Path $UnrealPath "Engine\Build\BatchFiles\RunUAT.bat"
+        
+                      if (!(Test-Path $RunUatBatch)) {
+                          throw "RunUAT.bat not found - extraction may have failed"
+                      }
+
+                      Write-Host "Unreal Engine verified successfully at $UnrealPath"
+        
+
   # Custom component to install Visual Studio 2022 Community Edition
   VisualStudioComponent:
     Type: AWS::ImageBuilder::Component
@@ -455,75 +524,6 @@ Resources:
                         throw "Visual Studio not detected"
                       }
                       Write-Host "Visual Studio installed at: $installPath"
-
-
-  # Custom component to install Unreal Engine from source
-  UnrealEngineComponent:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: Install-Unreal-Engine
-      Description: Installs Unreal Engine
-      Platform: Windows
-      Version: 1.0.0
-      ChangeDescription: Initial Unreal Engine component
-
-      Data: |
-        name: Install Unreal Engine
-        description: Downloads and extracts Unreal Engine
-        schemaVersion: 1.0
-
-        phases:
-          - name: build
-            steps:
-              - name: DownloadUnrealEngine
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
-                      
-                      Write-Host "Downloading Unreal Engine binaries..."
-                      Read-S3Object -BucketName unreal-build-server-files -Key UE_5.5.zip -File $ZipFilePath
-                      
-                      if (!(Test-Path $ZipFilePath)) {
-                        throw "Unreal Engine download failed"
-                      }
-        
-              - name: ExtractUnrealEngine
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-                      $7ZipExePath = "C:\Program Files\7-Zip\7z.exe"
-                      $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
-
-                      Write-Host "Extracting Unreal Engine binaries..."
-                      & "C:\Program Files\7-Zip\7z.exe" x -o"C:\Program Files\Epic Games\UE_5.5\" $ZipFilePath -y
-                      Remove-Item -Path $ZipFilePath -Force
-              
-              - name: VerifyUnrealEngine
-                action: ExecutePowerShell
-                inputs:
-                  commands:
-                    - |
-                      $ErrorActionPreference = "Stop"
-                      $UnrealPath = "C:\Program Files\Epic Games\UE_5.5\"
-
-                      Write-Host "Verifying Unreal Engine extraction..."
-
-                      if (!(Test-Path $UnrealPath)) {
-                          throw "Unreal Engine directory not found at $UnrealPath"
-                      }
-
-                      $RunUatBatch = Join-Path $UnrealPath "Engine\Build\BatchFiles\RunUAT.bat"
-        
-                      if (!(Test-Path $RunUatBatch)) {
-                          throw "RunUAT.bat not found - extraction may have failed"
-                      }
-
-                      Write-Host "Unreal Engine verified successfully at $UnrealPath"
 
 
   # Windows Server 2025 base image
