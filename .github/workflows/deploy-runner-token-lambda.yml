@@ -41,13 +41,13 @@ jobs:
           template: ${{ github.workspace }}/runner-token-lambda-infra.yml
           parameter-overrides: "GitHubOrganization=${{ env.GITHUB_ORG }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"
 
-      - name: Deploy Lambda Function
-        uses: aws-actions/aws-lambda-deploy@v1.1.0
-        with:
-          function-name: gitHub-runner-token
-          code-artifacts-dir: ./runner-token
-          handler: index.handler
-          role: ${{ steps.deploy.outputs.LambdaArn  }}
-          environment: '{ "GITHUB_SECRET": "${{ secrets.GITHUB_TOKEN }}", "GITHUB_ORG": "${{ env.GITHUB_ORG }}" }'
-          timeout: 30
-          memory-size: 128
+#      - name: Deploy Lambda Function
+#        uses: aws-actions/aws-lambda-deploy@v1.1.0
+#        with:
+#          function-name: gitHub-runner-token
+#          code-artifacts-dir: ./runner-token
+#          handler: index.handler
+#          role: ${{ steps.deploy.outputs.LambdaArn  }}
+#          environment: '{ "GITHUB_SECRET": "${{ secrets.GITHUB_TOKEN }}", "GITHUB_ORG": "${{ env.GITHUB_ORG }}" }'
+#          timeout: 30
+#          memory-size: 128
