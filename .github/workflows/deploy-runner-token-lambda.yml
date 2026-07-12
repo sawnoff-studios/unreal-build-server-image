@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - ./runner-token
+      - runner-token/**
 
 env:
   PROJECT_NAME: "RunUnrealBuildServerImagePipeline"
