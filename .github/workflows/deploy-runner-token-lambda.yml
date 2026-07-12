@@ -37,4 +37,3 @@ jobs:
           function-name: GitHub-Runner-Token
           code-artifacts-dir: ./runner-token
           handler: index.handler
-          runtime: nodejs22.x
