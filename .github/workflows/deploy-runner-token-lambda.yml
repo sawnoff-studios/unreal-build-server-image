@@ -13,6 +13,7 @@ on:
 env:
   PROJECT_NAME: "UnrealBuildServerRunnerTokenLambda"
   AWS_REGION: "ap-southeast-2"
+  LAMBDA_ZIP_FILE_PATH: "./lambda.zip"
   GITHUB_ORG: "sawnoff-studios"
   GITHUB_SECRET_NAME: "/github/actions/runner-key"
 
@@ -35,29 +36,13 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v7
 
+      - name: Zip up Lambda
+        run: zip -r ${{ env.LAMBDA_ZIP_FILE_PATH }} runner-token
+
       - name: Deploy CloudFormation stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/runner-token-lambda-infra.yml
-          parameter-overrides: "GitHubOrganization=${{ env.GITHUB_ORG }},GitHubSecretName=${{ env.GITHUB_SECRET_NAME }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"
-
-      - name: Deploy Lambda Function
-        uses: aws-actions/aws-lambda-deploy@v1.1.0
-        id: deploy-lambda
-        with:
-          function-name: github-runner-token
-          code-artifacts-dir: ./runner-token
-          handler: index.handler
-          role: ${{ steps.deploy.outputs.LambdaArn  }}
-          environment: '{ "GITHUB_SECRET": "${{ secrets.GITHUB_TOKEN }}", "GITHUB_ORG": "${{ env.GITHUB_ORG }}" }'
-          timeout: 30
-          memory-size: 128
-
-      - name: Deploy Allow EC2 Invoke Lambda
-        uses: aws-actions/aws-cloudformation-github-deploy@v2
-        with:
-          name: ${{ env.PROJECT_NAME }}AllowEC2InvokeLambdaStack
-          template: ${{ github.workspace }}/allow-ec2-invoke-lambda-infra.yml
-          parameter-overrides: "GitHubRunnerTokenLambdaArn=${{ steps.deploy-lambda.outputs.function-arn }}"
+          parameter-overrides: "LambdaZipFilePath=${{ env.LAMBDA_ZIP_FILE_PATH }},GitHubOrganization=${{ env.GITHUB_ORG }},GitHubSecretName=${{ env.GITHUB_SECRET_NAME }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"

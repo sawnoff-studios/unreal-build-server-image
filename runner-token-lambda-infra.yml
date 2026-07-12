@@ -1,6 +1,10 @@
 Description: Deploys a Lambda function that creates GitHub Actions runner registration tokens using a GitHub App.
 
 Parameters:
+  LambdaZipFilePath:
+    Type: String
+    Description: Path to the Lambda function zip file
+
   GitHubOrganization:
     Type: String
     Description: GitHub organization name
@@ -67,9 +71,60 @@ Resources:
                 Resource:
                   - !Ref GitHubRunnerAppSecret
 
+
+  # Lambda function
+  GitHubRunnerTokenLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName:
+        github-runner-token
+      Runtime:
+        nodejs20.x
+      Handler:
+        index.handler
+      Role:
+        !GetAtt RunnerTokenLambdaRole.Arn
+      Timeout:
+        30
+      MemorySize:
+        128
+      Environment:
+        Variables:
+          GITHUB_SECRET:
+            !Ref GitHubSecretName
+          GITHUB_ORG:
+            !Ref GitHubOrganization
+      ZipFile: !Ref LambdaZipFilePath
+
+
+  # Permission for EC2 instances
+  AllowEC2InvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        !Ref GitHubRunnerTokenLambda
+      Action:
+        lambda:InvokeFunction
+      Principal:
+        ec2.amazonaws.com
+
+
 Outputs:
+
+  LambdaName:
+    Description:
+      Lambda function name
+    Value:
+      !Ref GitHubRunnerTokenLambda
+
   LambdaArn:
     Description:
-      Lambda Execution Role ARN
+      Lambda ARN
     Value:
-      !GetAtt RunnerTokenLambdaRole.Arn
+      !GetAtt GitHubRunnerTokenLambda.Arn
+
+  GitHubSecret:
+    Description:
+      Secrets Manager secret name
+    Value:
+      !Ref GitHubRunnerAppSecret
