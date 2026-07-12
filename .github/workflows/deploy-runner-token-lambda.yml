@@ -13,6 +13,7 @@ env:
   PROJECT_NAME: "UnrealBuildServerRunnerTokenLambda"
   AWS_REGION: "ap-southeast-2"
   GITHUB_ORG: "sawnoff-studios"
+  GITHUB_SECRET_NAME: "/github/actions/runner-key"
 
 permissions:
   id-token: write
@@ -39,7 +40,7 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/runner-token-lambda-infra.yml
-          parameter-overrides: "GitHubOrganization=${{ env.GITHUB_ORG }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"
+          parameter-overrides: "GitHubOrganization=${{ env.GITHUB_ORG }},GitHubSecretName=${{ env.GITHUB_SECRET_NAME }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"
 
 #      - name: Deploy Lambda Function
 #        uses: aws-actions/aws-lambda-deploy@v1.1.0

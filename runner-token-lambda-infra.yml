@@ -9,7 +9,6 @@ Parameters:
 
   GitHubSecretName:
     Type: String
-    Default: /github/actions/runner-app
     Description: Secrets Manager secret containing GitHub App credentials
 
   SecretAppId:
