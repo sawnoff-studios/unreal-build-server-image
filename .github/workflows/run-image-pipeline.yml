@@ -1,4 +1,5 @@
 name: Run Image Build Pipeline
+
 on:
   workflow_dispatch:
 
@@ -22,8 +23,10 @@ jobs:
           role-to-assume: ${{ env.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Clone repository
         uses: actions/checkout@v7
+
       - name: Get pipeline ARN
         id: get-stack-name
         run: |
@@ -33,6 +36,7 @@ jobs:
             --output text)
           
           echo "PIPELINE_ARN=$IMAGE_STACK_PIPELINE_ARN" >> $GITHUB_OUTPUT
+
       - name: Start pipeline execution
         run: |
           aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.get-stack-name.outputs.PIPELINE_ARN }}

@@ -23,8 +23,10 @@ jobs:
           role-to-assume: ${{ env.IAM_ROLE }}
           role-session-name: ${{ env.PROJECT_NAME }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Clone repository
         uses: actions/checkout@v7
+
       - name: Deploy CloudFormation stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
         id: deploy
