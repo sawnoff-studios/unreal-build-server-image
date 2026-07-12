@@ -51,13 +51,15 @@ Builds an EC2 Image Builder image for an Unreal Engine build server
                 "imagebuilder:GetDistributionConfiguration",
                 "imagebuilder:UpdateInfrastructureConfiguration",
                 "imagebuilder:UpdateDistributionConfiguration",
+                "imagebuilder:StartImagePipelineExecution",
                 "s3:CreateBucket",
                 "s3:PutEncryptionConfiguration",
                 "s3:DeleteBucket",
                 "s3:PutBucketVersioning",
                 "s3:PutBucketPublicAccessBlock",
-                "imagebuilder:StartImagePipelineExecution",
-                "SNS:Publish"
+                "SNS:Publish",
+                "lambda:GetFunctionConfiguration",
+                "lambda:CreateFunction"
             ],
             "Resource": "*"
         }
