@@ -413,7 +413,7 @@ Resources:
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
 
                       Write-Host "Extracting Unreal Engine binaries..."
-                      & "C:\Program Files\7-Zip\7z.exe" x -o"C:\Program Files\Epic Games\UE_5.5\" $ZipFilePath -y
+                      & "C:\Program Files\7-Zip\7z.exe" x -o "C:\Program Files\Epic Games\" $ZipFilePath -y
                       Remove-Item -Path $ZipFilePath -Force
         
               - name: VerifyUnrealEngine
