@@ -370,7 +370,7 @@ Resources:
                       )
   
 
-  # Custom component to install Unreal Engine from source
+  # Custom component to install Unreal Engine
   UnrealEngineComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
