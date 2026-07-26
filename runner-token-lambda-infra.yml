@@ -1,37 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Description: Deploys a Lambda function that creates GitHub Actions runner registration tokens using a GitHub App.
 
 Parameters:
-  LambdaZipFilePath:
-    Type: String
-    Description: Path to the Lambda function zip file
-
   GitHubOrganization:
     Type: String
     Description: GitHub organization name
 
-  GitHubSecretName:
+  SecretsManagerKeyName:
     Type: String
-    Description: Secrets Manager secret containing GitHub App credentials
+    Description: Secrets Manager key containing GitHub App credentials
 
-  SecretAppId:
+  GitHubAppId:
     Type: String
     Description: GitHub App ID
 
-  InstallationId:
+  GitHubAppInstallationId:
     Type: String
     Description: GitHub App installation ID
 
-  PrivateKey:
+  GitHubAppPrivateKey:
     Type: String
     Description: GitHub App private key
 
 Resources:
-
   # Secrets Manager Secret
   GitHubRunnerAppSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Ref GitHubSecretName
+      Name: !Ref SecretsManagerKeyName
 
       Description:
         GitHub App credentials for Actions runner registration
@@ -39,93 +36,45 @@ Resources:
       SecretString: !Sub
         |
         {
-          "app_id": "${SecretAppId}",
-          "installation_id": "${InstallationId}",
-          "private_key": "${PrivateKey}"
+          "app_id": "${GitHubAppId}",
+          "installation_id": "${GitHubAppInstallationId}",
+          "private_key": "${GitHubAppPrivateKey}"
         }
-
-
-  # Lambda Execution Role
-  RunnerTokenLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: ReadGitHubSecret
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
-                Resource:
-                  - !Ref GitHubRunnerAppSecret
-
 
   # Lambda function
   GitHubRunnerTokenLambda:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName:
-        github-runner-token
-      Runtime:
-        nodejs20.x
-      Handler:
-        index.handler
-      Role:
-        !GetAtt RunnerTokenLambdaRole.Arn
-      Timeout:
-        30
-      MemorySize:
-        128
+      FunctionName: github-runner-token
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Timeout: 30
+      MemorySize: 128
+      CodeUri: runner-token/
       Environment:
         Variables:
-          GITHUB_SECRET:
-            !Ref GitHubSecretName
-          GITHUB_ORG:
-            !Ref GitHubOrganization
-      Code:
-        ZipFile: !Ref LambdaZipFilePath
-
-
-  # Permission for EC2 instances
-  AllowEC2InvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName:
-        !Ref GitHubRunnerTokenLambda
-      Action:
-        lambda:InvokeFunction
-      Principal:
-        ec2.amazonaws.com
+          GITHUB_SECRET: !Ref GitHubSecretName
+          GITHUB_ORG: !Ref GitHubOrganization
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Ref GitHubRunnerAppSecret
 
 
 Outputs:
-
   LambdaName:
-    Description:
-      Lambda function name
-    Value:
-      !Ref GitHubRunnerTokenLambda
+    Description: Lambda function name
+    Value: !Ref GitHubRunnerTokenLambda
 
   LambdaArn:
-    Description:
-      Lambda ARN
-    Value:
-      !GetAtt GitHubRunnerTokenLambda.Arn
+    Description: Lambda ARN
+    Value: !GetAtt GitHubRunnerTokenLambda.Arn
 
   GitHubSecret:
-    Description:
-      Secrets Manager secret name
-    Value:
-      !Ref GitHubRunnerAppSecret
+    Description: Secrets Manager secret name
+    Value: !Ref GitHubRunnerAppSecret

@@ -15,7 +15,7 @@ env:
   AWS_REGION: "ap-southeast-2"
   LAMBDA_ZIP_FILE_PATH: "./lambda.zip"
   GITHUB_ORG: "sawnoff-studios"
-  GITHUB_SECRET_NAME: "/github/actions/runner-key"
+  SECRETS_MANAGER_KEY_NAME: "/github/actions/runner-key"
 
 permissions:
   id-token: write
@@ -36,17 +36,17 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v7
 
-      - name: Install Lambda dependencies
-        run: npm install
-        working-directory: runner-token
-
-      - name: Zip up Lambda
-        run: zip -r ${{ env.LAMBDA_ZIP_FILE_PATH }} runner-token
-
-      - name: Deploy CloudFormation stack
-        uses: aws-actions/aws-cloudformation-github-deploy@v2
-        id: deploy
+      - name: Install AWS SAM
+        uses: aws-actions/setup-sam@v3
         with:
-          name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/runner-token-lambda-infra.yml
-          parameter-overrides: "LambdaZipFilePath=${{ env.LAMBDA_ZIP_FILE_PATH }},GitHubOrganization=${{ env.GITHUB_ORG }},GitHubSecretName=${{ env.GITHUB_SECRET_NAME }},SecretAppId=${{ secrets.LAMBDA_APP_ID }},InstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }},PrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}"
+          use-installer: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: SAM build
+        run: sam build --use-container -t .\runner-token-lambda-infra.yml
+
+      - name: SAM validate
+        run: sam validate --template-file .\runner-token-lambda-infra.yml
+
+      - name: SAM deploy
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides GitHubOrganization=${{ env.GITHUB_ORGANIZATION }} SecretsManagerKeyName=${{ env.SECRETS_MANAGER_KEY_NAME }} GitHubAppAppId=${{ secrets.LAMBDA_APP_ID }} GitHubAppInstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }} GitHubAppPrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}
