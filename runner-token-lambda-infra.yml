@@ -34,12 +34,13 @@ Resources:
         GitHub App credentials for Actions runner registration
 
       SecretString: !Sub
-        |
-        {
-          "app_id": "${GitHubAppId}",
-          "installation_id": "${GitHubAppInstallationId}",
-          "private_key": "${GitHubAppPrivateKey}"
-        }
+        - |
+          {
+            "app_id": "${GitHubAppId}",
+            "installation_id": "${GitHubAppInstallationId}",
+            "private_key": "${PrivateKeyEscaped}"
+          }
+        - PrivateKeyEscaped: !Join [ '\\n', !Split [ '\n', !Ref GitHubAppPrivateKey ] ]
 
   # Lambda function
   GitHubRunnerTokenLambda:
