@@ -38,9 +38,8 @@ Resources:
           {
             "app_id": "${GitHubAppId}",
             "installation_id": "${GitHubAppInstallationId}",
-            "private_key": "${PrivateKeyEscaped}"
+            "private_key": "${GitHubAppPrivateKey}"
           }
-        - PrivateKeyEscaped: !Join [ "", !Split [ "\n", !Ref GitHubAppPrivateKey ] ]
 
   # Lambda function
   GitHubRunnerTokenLambda:
