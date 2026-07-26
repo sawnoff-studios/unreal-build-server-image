@@ -16,7 +16,7 @@ env:
   AWS_REGION: "ap-southeast-2"
   LAMBDA_ZIP_FILE_PATH: "./lambda.zip"
   LAMBDA_S3_BUCKET_NAME: "unreal-build-server-files"
-  GITHUB_ORG: "sawnoff-studios"
+  GITHUB_ORGANISATION: "sawnoff-studios"
   SECRETS_MANAGER_KEY_NAME: "/github/actions/runner-key"
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --parameter-overrides \
-              'ParameterKey=GitHubOrganization,ParameterValue=${{ env.GITHUB_ORGANIZATION }}' \
+              'ParameterKey=GitHubOrganisation,ParameterValue=${{ env.GITHUB_ORGANISATION }}' \
               'ParameterKey=SecretsManagerKeyName,ParameterValue=${{ env.SECRETS_MANAGER_KEY_NAME }}' \
               'ParameterKey=GitHubAppId,ParameterValue=${{ secrets.LAMBDA_APP_ID }}' \
               'ParameterKey=GitHubAppInstallationId,ParameterValue=${{ secrets.LAMBDA_APP_INSTALLATION_ID }}' \

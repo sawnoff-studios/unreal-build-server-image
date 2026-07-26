@@ -3,9 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: Deploys a Lambda function that creates GitHub Actions runner registration tokens using a GitHub App.
 
 Parameters:
-  GitHubOrganization:
+  GitHubOrganisation:
     Type: String
-    Description: GitHub organization name
+    Description: GitHub organisation name
 
   SecretsManagerKeyName:
     Type: String
@@ -54,7 +54,7 @@ Resources:
       Environment:
         Variables:
           SECRETS_MANAGER_KEY_NAME: !Ref SecretsManagerKeyName
-          GITHUB_ORG: !Ref GitHubOrganization
+          GITHUB_ORGANISATION: !Ref GitHubOrganisation
       Policies:
         - AWSLambdaBasicExecutionRole
         - Version: '2012-10-17'
