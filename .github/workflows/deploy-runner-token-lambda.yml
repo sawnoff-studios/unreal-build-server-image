@@ -47,6 +47,9 @@ jobs:
       - name: SAM validate
         run: sam validate --template-file ${{ github.workspace }}/runner-token-lambda-infra.yml
 
+      - name: NPM install
+        run: npm install --prefix ${{ github.workspace }}/runner-token
+
       - name: SAM build
         run: sam build -t ${{ github.workspace }}/runner-token-lambda-infra.yml
 
