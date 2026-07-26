@@ -28,3 +28,4 @@ out/
 # Runner Token Lambda node_modules
 runner-token/node_modules
 runner-token/package-lock.json
+.aws-sam
