@@ -106,7 +106,7 @@ exports.handler = async () => {
     const runnerToken =
         await createRunnerRegistrationToken(
             installationToken,
-            process.env.GITHUB_ORG
+            process.env.GITHUB_ORGANISATION
         );
 
     return {
