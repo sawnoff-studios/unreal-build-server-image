@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/deploy-runner-token-lambda.yml"
       - "runner-token-lambda-infra.yml"
       - "runner-token/**"
       - "allow-ec2-invoke-lambda-infra.yml"
