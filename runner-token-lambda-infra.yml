@@ -53,7 +53,7 @@ Resources:
       CodeUri: runner-token/
       Environment:
         Variables:
-          GITHUB_SECRET: !Ref GitHubSecretName
+          SECRETS_MANAGER_KEY_NAME: !Ref SecretsManagerKeyName
           GITHUB_ORG: !Ref GitHubOrganization
       Policies:
         - AWSLambdaBasicExecutionRole

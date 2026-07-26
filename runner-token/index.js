@@ -89,7 +89,7 @@ async function createRunnerRegistrationToken(
 
 exports.handler = async () => {
     const secret = await getSecret(
-        process.env.GITHUB_SECRET
+        process.env.SECRETS_MANAGER_KEY_NAME
     );
 
     const appJWT = createGitHubAppJWT(
