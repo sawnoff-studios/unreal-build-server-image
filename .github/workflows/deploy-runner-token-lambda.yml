@@ -43,10 +43,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SAM build
-        run: sam build --use-container -t .\runner-token-lambda-infra.yml
+        run: sam build --use-container -t ${{ github.workspace }}\runner-token-lambda-infra.yml
 
       - name: SAM validate
-        run: sam validate --template-file .\runner-token-lambda-infra.yml
+        run: sam validate --template-file ${{ github.workspace }}\runner-token-lambda-infra.yml
 
       - name: SAM deploy
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides GitHubOrganization=${{ env.GITHUB_ORGANIZATION }} SecretsManagerKeyName=${{ env.SECRETS_MANAGER_KEY_NAME }} GitHubAppAppId=${{ secrets.LAMBDA_APP_ID }} GitHubAppInstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }} GitHubAppPrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}
+        run: sam deploy --template-file ${{ github.workspace }}\runner-token-lambda-infra.yml --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides GitHubOrganization=${{ env.GITHUB_ORGANIZATION }} SecretsManagerKeyName=${{ env.SECRETS_MANAGER_KEY_NAME }} GitHubAppAppId=${{ secrets.LAMBDA_APP_ID }} GitHubAppInstallationId=${{ secrets.LAMBDA_APP_INSTALLATION_ID }} GitHubAppPrivateKey=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}
