@@ -15,6 +15,7 @@ env:
   PROJECT_NAME: "UnrealBuildServerRunnerTokenLambda"
   AWS_REGION: "ap-southeast-2"
   LAMBDA_ZIP_FILE_PATH: "./lambda.zip"
+  LAMBDA_S3_BUCKET_NAME: "unreal-build-server-files"
   GITHUB_ORG: "sawnoff-studios"
   SECRETS_MANAGER_KEY_NAME: "/github/actions/runner-key"
 
@@ -50,4 +51,4 @@ jobs:
         run: sam validate --template-file ${{ github.workspace }}/runner-token-lambda-infra.yml
 
       - name: SAM deploy
-        run: sam deploy --template-file ${{ github.workspace }}/runner-token-lambda-infra.yml --stack-name ${{ env.PROJECT_NAME }}Stack --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides 'ParameterKey=GitHubOrganization,ParameterValue=${{ env.GITHUB_ORGANIZATION }}' 'ParamterKey=SecretsManagerKeyName,ParameterValue=${{ env.SECRETS_MANAGER_KEY_NAME }}' 'ParameterKey=GitHubAppAppId,ParameterValue=${{ secrets.LAMBDA_APP_ID }}' 'ParameterKey=GitHubAppInstallationId,ParameterValue=${{ secrets.LAMBDA_APP_INSTALLATION_ID }}' 'ParameterKey=GitHubAppPrivateKey,ParameterValue=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}'
+        run: sam deploy --template-file ${{ github.workspace }}/runner-token-lambda-infra.yml --stack-name ${{ env.PROJECT_NAME }}Stack --s3-bucket ${{ env.LAMBDA_S3_BUCKET_NAME }} --no-confirm-changeset --no-fail-on-empty-changeset --parameter-overrides 'ParameterKey=GitHubOrganization,ParameterValue=${{ env.GITHUB_ORGANIZATION }}' 'ParamterKey=SecretsManagerKeyName,ParameterValue=${{ env.SECRETS_MANAGER_KEY_NAME }}' 'ParameterKey=GitHubAppAppId,ParameterValue=${{ secrets.LAMBDA_APP_ID }}' 'ParameterKey=GitHubAppInstallationId,ParameterValue=${{ secrets.LAMBDA_APP_INSTALLATION_ID }}' 'ParameterKey=GitHubAppPrivateKey,ParameterValue=${{ secrets.LAMBDA_APP_PRIVATE_KEY }}'
