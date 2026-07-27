@@ -111,7 +111,9 @@ Resources:
   InfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      Name: WindowsServer2025-BuildInfrastructure
+      Name:
+        Fn::Sub:
+          WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-BuildInfrastructure
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
