@@ -2,6 +2,12 @@
 
 Builds an EC2 Image Builder image for an Unreal Engine build server
 
+## Required IAM roles:
+
+- AmazonS3FullAccess
+- AWSCloudFormationFullAccess
+- AWSLambda_FullAccess
+
 ## Required IAM policy:
 
 ```
@@ -11,14 +17,6 @@ Builds an EC2 Image Builder image for an Unreal Engine build server
         {
             "Effect": "Allow",
             "Action": [
-                "cloudformation:CreateStack",
-                "cloudformation:DescribeStacks",
-                "cloudformation:CreateChangeSet",
-                "cloudformation:DescribeChangeSet",
-                "cloudformation:DescribeEvents",
-                "cloudformation:DeleteChangeSet",
-                "cloudformation:ExecuteChangeSet",
-                "cloudformation:DeleteStack",
                 "iam:CreateInstanceProfile",
                 "iam:DeleteInstanceProfile",
                 "iam:CreatePolicy",
@@ -34,6 +32,8 @@ Builds an EC2 Image Builder image for an Unreal Engine build server
                 "iam:DeleteRolePolicy",
                 "iam:CreateServiceLinkedRole",
                 "iam:PassRole",
+                "iam:GetRole",
+                "iam:TagRole",
                 "iam:GetInstanceProfile",
                 "imagebuilder:CreateDistributionConfiguration",
                 "imagebuilder:CreateComponent",
@@ -52,14 +52,11 @@ Builds an EC2 Image Builder image for an Unreal Engine build server
                 "imagebuilder:UpdateInfrastructureConfiguration",
                 "imagebuilder:UpdateDistributionConfiguration",
                 "imagebuilder:StartImagePipelineExecution",
-                "s3:CreateBucket",
-                "s3:PutEncryptionConfiguration",
-                "s3:DeleteBucket",
-                "s3:PutBucketVersioning",
-                "s3:PutBucketPublicAccessBlock",
                 "SNS:Publish",
-                "lambda:GetFunctionConfiguration",
-                "lambda:CreateFunction"
+                "secretsmanager:CreateSecret",
+                "secretsmanager:GetSecretValue",
+                "secretsManager:DeleteSecret",
+                "secretsManager:UpdateSecret"
             ],
             "Resource": "*"
         }
