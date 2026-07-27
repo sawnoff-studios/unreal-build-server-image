@@ -91,10 +91,10 @@ exports.handler = async () => {
     const secret = await getSecret(
         process.env.SECRETS_MANAGER_KEY_NAME
     );
-
+    
     const appJWT = createGitHubAppJWT(
         secret.app_id,
-        secret.private_key
+        atob(secret.private_key)
     );
 
     const installationToken =
