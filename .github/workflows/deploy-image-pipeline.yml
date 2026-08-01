@@ -14,6 +14,7 @@ env:
   INSTANCE_TYPE: "c5.xlarge"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   FILES_BUCKET_NAME: "unreal-build-server-files"
+  RUNNER_TOKEN_LAMBDA_STACK_NAME: "UnrealBuildServerRunnerTokenLambdaStack"
 
 permissions:
   id-token: write
@@ -34,6 +35,16 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v7
 
+      - name: Get runner token Lambda ARN
+        id: get-runner-token-lambda-arn
+        run: |
+          RUNNER_TOKEN_LAMBDA_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.RUNNER_TOKEN_LAMBDA_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='LambdaArn'].OutputValue" \
+            --output text)
+          
+          echo "LAMBDA_ARN=$RUNNER_TOKEN_LAMBDA_ARN" >> $GITHUB_OUTPUT
+
       - name: Remove existing CloudFormation stack
         run: |
           aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
@@ -45,5 +56,5 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
