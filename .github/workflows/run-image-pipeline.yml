@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Get pipeline ARN
-        id: get-stack-name
+        id: get-pipeline-arn
         run: |
           IMAGE_STACK_PIPELINE_ARN=$(aws cloudformation describe-stacks \
             --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} \
@@ -39,4 +39,4 @@ jobs:
 
       - name: Start pipeline execution
         run: |
-          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.get-stack-name.outputs.PIPELINE_ARN }}
+          aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.get-pipeline-arn.outputs.PIPELINE_ARN }}
