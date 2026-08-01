@@ -143,7 +143,7 @@ Resources:
       Description: Install Amazon CloudWatch Agent for Windows
       Platform: Windows
       Data: |
-        name: Install CloudWatch Agent
+        name: Installs CloudWatch Agent
         description: Installs Amazon CloudWatch Agent using the official installer
         schemaVersion: 1.0
 
@@ -192,7 +192,7 @@ Resources:
       Description: Install 7-Zip for Windows
       Platform: Windows
       Data: |
-        name: Install 7-Zip for Windows
+        name: Installs 7-Zip for Windows
         description: Installs 7-Zip using the official installer
         schemaVersion: 1.0
 
@@ -238,7 +238,7 @@ Resources:
     Properties:
       Name: Install-Git
       Version: 1.0.0
-      Description: Install Git for Windows
+      Description: Installs Git for Windows
       Platform: Windows
       Data: |
         name: Install Git for Windows
@@ -283,7 +283,7 @@ Resources:
     Properties:
       Name: Install-Git-LFS
       Version: 1.0.0
-      Description: Install Git LFS for Windows
+      Description: Installs Git LFS for Windows
       Platform: Windows
       Data: |
         name: Install Git for Windows
