@@ -333,7 +333,7 @@ Resources:
   GitHubActionsRunnerComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: install-github-actions-runner
+      Name: Install-GitHub-Actions-Runner
       Description: Installs the GitHub Actions runner on Windows
       Platform: Windows
       Version: '1.0.0'
