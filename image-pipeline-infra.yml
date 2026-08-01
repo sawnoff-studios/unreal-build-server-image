@@ -16,6 +16,10 @@
     Type: String
     Description: SNS topic ARN for notifications
 
+  RunnerTokenLambdaArn:
+    Type: String
+    Description: ARN of the Lambda function that retrieves GitHub self-hosted runner tokens
+
   UnrealMajorVersion:
     Type: String
     Default: 5
@@ -353,11 +357,11 @@ Resources:
                       # Download the latest runner package
                       Invoke-WebRequest `
                         -Uri https://github.com/actions/runner/releases/download/v2.335.1/actions-runner-win-x64-2.335.1.zip `
-                        -OutFile actions-runner-win-x64-2.335.1.zip
+                        -OutFile actions-runner.zip
 
                       # Validate the hash
                       if ((Get-FileHash `
-                        -Path actions-runner-win-x64-2.335.1.zip `
+                        -Path actions-runner.zip `
                         -Algorithm SHA256).Hash.ToUpper() `
                         -ne 'EB65C95277AF42BCF3778A799C41359D224BA2A67B4DE26B7CEA1729B09C803D') {
                           throw 'Computed checksum did not match'
@@ -367,7 +371,7 @@ Resources:
                       Add-Type -AssemblyName System.IO.Compression.FileSystem
 
                       [System.IO.Compression.ZipFile]::ExtractToDirectory(
-                        "C:\actions-runner\actions-runner-win-x64-2.335.1.zip",
+                        "C:\actions-runner\actions-runner.zip",
                         "C:\actions-runner"
                       )
   
@@ -556,7 +560,42 @@ Resources:
         - ComponentArn: !Ref GitHubActionsRunnerComponent
         - ComponentArn: !Ref UnrealEngineComponent
         - ComponentArn: !Ref VisualStudioComponent
-
+      AdditionalInstanceConfiguration:
+        UserDataOverride:
+          Fn::Base64: !Sub |
+            <powershell>
+            
+            $runnerDir="C:\actions-runner"
+            
+            cd $runnerDir
+            
+            Write-Host "Invoking Lambda..."
+            
+            $payload = "{}"
+            
+            $response = aws lambda invoke `
+                --function-name ${RunnerTokenLambdaArn} `
+                --payload $payload `
+                C:\token.json
+            
+            $tokenObject = Get-Content C:\token.json | ConvertFrom-Json
+            
+            $token = $tokenObject.token
+            $repoUrl = $tokenObject.url
+            
+            Write-Host "Configuring Runner"
+            
+            .\config.cmd `
+               --unattended `
+               --url $repoUrl `
+               --token $token `
+               --name $env:COMPUTERNAME `
+               --replace `
+               --runasservice
+            
+            .\run.cmd
+            
+            </powershell>
 
   # AMI distribution
   DistributionConfiguration:
