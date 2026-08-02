@@ -554,12 +554,12 @@ Resources:
             VolumeType: gp3
       Components:
         - ComponentArn: !Ref CloudWatchAgentComponent
-        - ComponentArn: !Ref 7ZipComponent
-        - ComponentArn: !Ref GitComponent
-        - ComponentArn: !Ref GitLfsComponent
+#        - ComponentArn: !Ref 7ZipComponent
+#        - ComponentArn: !Ref GitComponent
+#        - ComponentArn: !Ref GitLfsComponent
         - ComponentArn: !Ref GitHubActionsRunnerComponent
-        - ComponentArn: !Ref UnrealEngineComponent
-        - ComponentArn: !Ref VisualStudioComponent
+#        - ComponentArn: !Ref UnrealEngineComponent
+#        - ComponentArn: !Ref VisualStudioComponent
       AdditionalInstanceConfiguration:
         UserDataOverride:
           Fn::Base64: !Sub |
