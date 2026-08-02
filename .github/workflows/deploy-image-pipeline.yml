@@ -17,7 +17,6 @@ env:
   UNREAL_MAJOR_VERSION: "5"
   UNREAL_MINOR_VERSION: "6"
   RUNNER_TOKEN_LAMBDA_STACK_NAME: "UnrealBuildServerRunnerTokenLambdaStack"
-  SECRETS_MANAGER_AMI_ID_KEY: "/unreal/build-server/ami-id"
 
 permissions:
   id-token: write
@@ -59,5 +58,5 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }},SecretsManagerAmiIdKeyName=${{ env.SECRETS_MANAGER_AMI_ID_KEY }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }}"
           capabilities: 'CAPABILITY_NAMED_IAM'

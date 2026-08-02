@@ -599,6 +599,7 @@ Resources:
             
             </powershell>
 
+
   # AMI distribution
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
@@ -616,6 +617,10 @@ Resources:
             Description:
               Fn::Sub:
                 Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
+            AmiTags:
+              UnrealEngineVersion:
+                Fn::Sub:
+                  unreal-engine-${UnrealMajorVersion}-${UnrealMinorVersion}
 
 
   # Image pipeline
@@ -635,25 +640,8 @@ Resources:
         ENABLED
 
 
-  # Secrets Manager AMI ID Secret
-  SecretsManagerAmiIdKey:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name:
-        Fn::Sub:
-          ${SecretsManagerAmiIdKeyName}/${UnrealMajorVersion}-${UnrealMinorVersion}
-      Description:
-        Fn::Sub:
-          Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} AMI ID
-
-
 Outputs:
   ImageBuilderPipelineArn:
     Description: Image Builder Pipeline ARN
     Value:
       Ref: ImagePipeline
-
-  AmiIdKeySecretArn:
-    Description: Secrets Manager AMI ID Secret ARN
-    Value:
-      Ref: SecretsManagerAmiIdKey
