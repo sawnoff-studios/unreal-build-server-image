@@ -22,13 +22,15 @@
 
   UnrealMajorVersion:
     Type: String
-    Default: 5
     Description: Unreal Engine major version
 
   UnrealMinorVersion:
     Type: String
-    Default: 6
     Description: Unreal Engine minor version
+
+  SecretsManagerAmiIdKeyName:
+    Type: String
+    Description: Name of the Secrets Manager key for the AMI ID
 
 Resources:
   # EC2 instance role
@@ -633,8 +635,25 @@ Resources:
         ENABLED
 
 
+    # Secrets Manager AMI ID Secret
+    SecretsManagerAmiIdKey:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name:
+          Fn::Sub:
+            ${SecretsManagerAmiIdKeyName}/${UnrealMajorVersion}-${UnrealMinorVersion}
+        Description:
+          Fn::Sub:
+            Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} AMI ID
+
+
 Outputs:
   ImageBuilderPipelineArn:
     Description: Image Builder Pipeline ARN
     Value:
       Ref: ImagePipeline
+
+  AmiIdKeySecretArn:
+    Description: Secrets Manager AMI ID Secret ARN
+    Value:
+      Ref: SecretsManagerAmiIdKey

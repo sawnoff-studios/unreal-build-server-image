@@ -38,5 +38,22 @@ jobs:
           echo "PIPELINE_ARN=$IMAGE_STACK_PIPELINE_ARN" >> $GITHUB_OUTPUT
 
       - name: Start pipeline execution
+        id: start-pipeline-execution
         run: |
           aws imagebuilder start-image-pipeline-execution --image-pipeline-arn ${{ steps.get-pipeline-arn.outputs.PIPELINE_ARN }}
+
+      - name: Update AMI ID in Secrets Manager
+        run: |
+          AMI_ID_KEY_SECRET_ARN=$(aws cloudformation describe-stacks \
+          --stack-name ${{ env.BUILD_IMAGE_STACK_NAME }} \
+          --query "Stacks[0].Outputs[?OutputKey=='AmiIdKeySecretArn'].OutputValue" \
+          --output text)
+          
+          AMI_ID=$(aws imagebuilder get-image \
+            --image-build-version-arn ${{ steps.start-pipeline-execution.outputs.IMAGE_BUILD_VERSION_ARN }} \
+            --query "image.imageArn" \
+            --output text)
+
+          aws secretsmanager put-secret-value \
+            --secret-id $AMI_ID_KEY_SECRET_ARN \
+            --secret-string "{\"AMI_ID\":\"$AMI_ID\"}"
