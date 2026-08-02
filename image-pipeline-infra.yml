@@ -635,16 +635,16 @@ Resources:
         ENABLED
 
 
-    # Secrets Manager AMI ID Secret
-    SecretsManagerAmiIdKey:
-      Type: AWS::SecretsManager::Secret
-      Properties:
-        Name:
-          Fn::Sub:
-            ${SecretsManagerAmiIdKeyName}/${UnrealMajorVersion}-${UnrealMinorVersion}
-        Description:
-          Fn::Sub:
-            Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} AMI ID
+  # Secrets Manager AMI ID Secret
+  SecretsManagerAmiIdKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name:
+        Fn::Sub:
+          ${SecretsManagerAmiIdKeyName}/${UnrealMajorVersion}-${UnrealMinorVersion}
+      Description:
+        Fn::Sub:
+          Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} AMI ID
 
 
 Outputs:
