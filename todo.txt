@@ -1,2 +1,4 @@
-- Create diagram
+- Create architecture diagram
+- Move components into separate template
+- Nested stacks for different engine versions
 - Lock down roles
