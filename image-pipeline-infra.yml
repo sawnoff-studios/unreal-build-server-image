@@ -587,7 +587,8 @@ Resources:
                --unattended `
                --url $repoUrl `
                --token $token `
-               --name $env:COMPUTERNAME `
+               --name unreal-engine-${UnrealMajorVersion}-${UnrealMinorVersion} `
+               --runnergroup "Unreal Engine" `
                --replace `
                --runasservice
             
