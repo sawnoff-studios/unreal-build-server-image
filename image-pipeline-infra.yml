@@ -28,10 +28,6 @@
     Type: String
     Description: Unreal Engine minor version
 
-  SecretsManagerAmiIdKeyName:
-    Type: String
-    Description: Name of the Secrets Manager key for the AMI ID
-
 Resources:
   # EC2 instance role
   # By default, AWS Services do not have permission to perform actions on your instances. This grants
