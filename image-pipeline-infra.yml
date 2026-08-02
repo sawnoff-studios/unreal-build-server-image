@@ -614,8 +614,7 @@ Resources:
               Fn::Sub:
                 Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
             AmiTags:
-              - Key: unreal-engine-version
-                Value: !Sub ${UnrealMajorVersion}.${UnrealMinorVersion}
+              unreal-engine-version: !Sub ${UnrealMajorVersion}-${UnrealMinorVersion}
 
 
   # Image pipeline
