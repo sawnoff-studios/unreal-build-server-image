@@ -558,43 +558,6 @@ Resources:
         - ComponentArn: !Ref GitHubActionsRunnerComponent
 #        - ComponentArn: !Ref UnrealEngineComponent
 #        - ComponentArn: !Ref VisualStudioComponent
-      AdditionalInstanceConfiguration:
-        UserDataOverride:
-          Fn::Base64: !Sub |
-            <powershell>
-            
-            $runnerDir="C:\actions-runner"
-            
-            cd $runnerDir
-            
-            Write-Host "Invoking Lambda..."
-            
-            $payload = "{}"
-            
-            $response = aws lambda invoke `
-                --function-name ${RunnerTokenLambdaArn} `
-                --payload $payload `
-                C:\token.json
-            
-            $tokenObject = Get-Content C:\token.json | ConvertFrom-Json
-            
-            $token = $tokenObject.token
-            $repoUrl = $tokenObject.url
-            
-            Write-Host "Configuring Runner"
-            
-            .\config.cmd `
-               --unattended `
-               --url $repoUrl `
-               --token $token `
-               --name unreal-engine-${UnrealMajorVersion}-${UnrealMinorVersion} `
-               --runnergroup "Unreal Engine" `
-               --replace `
-               --runasservice
-            
-            .\run.cmd
-            
-            </powershell>
 
 
   # AMI distribution
