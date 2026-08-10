@@ -132,6 +132,37 @@ Resources:
       # SubnetId: 'subnet-id'
 
 
+  # Custom component to install AWS CLI
+  AwsCliComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-AWS-CLI
+      Version: 1.0.0
+      Description: Install AWS CLI for Windows
+      Platform: Windows
+      Data: |
+        name: Installs AWS CLI
+        description: Installs AWS CLI using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: InstallAwsCli
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      irm https://awscli.amazonaws.com/v2/install.ps1 | iex
+
+              - name: VerifyAwsCli
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      aws --version
+  
+
   # Custom component to install CloudWatch Agent
   CloudWatchAgentComponent:
     Type: AWS::ImageBuilder::Component
@@ -551,6 +582,7 @@ Resources:
             VolumeSize: 250
             VolumeType: gp3
       Components:
+        - ComponentArn: !Ref AwsCliComponent
         - ComponentArn: !Ref CloudWatchAgentComponent
 #        - ComponentArn: !Ref 7ZipComponent
 #        - ComponentArn: !Ref GitComponent
