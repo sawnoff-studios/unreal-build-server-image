@@ -153,7 +153,16 @@ Resources:
                 inputs:
                   commands:
                     - |
-                      irm https://awscli.amazonaws.com/v2/install.ps1 | iex
+                      $url = "https://awscli.amazonaws.com/AWSCLIV2.msi"
+                      $installer = "C:\Windows\Temp\AWSCLIV2.msi"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+                      Start-Process `
+                        -FilePath "msiexec.exe" `
+                        -ArgumentList "/i C:\Windows\Temp\AWSCLIV2.msi /qn /norestart" `
+                        -Wait
 
               - name: VerifyAwsCli
                 action: ExecutePowerShell
