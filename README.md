@@ -2,6 +2,10 @@
 
 Builds an EC2 Image Builder image for an Unreal Engine build server
 
+# Architecture
+
+![Unreal Build Server Image architecture diagram](architecture.png)
+
 ## Required IAM roles:
 
 - AmazonS3FullAccess
