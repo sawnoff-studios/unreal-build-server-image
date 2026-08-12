@@ -1,3 +1,5 @@
+Description: Deploys an S3 bucket for as a destination for EC2 Image Builder logs.
+
 Parameters:
   LogBucketName:
     Type: String

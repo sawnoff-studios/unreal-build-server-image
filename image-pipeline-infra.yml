@@ -1,4 +1,6 @@
-﻿Parameters:
+﻿Description: Deploys an EC2 Image Builder Pipeline creates a self-hosted GitHub Actions runner for Unreal Engine.
+
+Parameters:
   InstanceType:
     Type: String
     Default: m5.xlarge
