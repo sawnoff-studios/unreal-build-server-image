@@ -1,6 +1,6 @@
 ﻿# Unreal Build Server Image
 
-Builds an EC2 Image Builder image for an Unreal Engine build server
+Builds an EC2 Image Builder AMI for an Unreal Engine build server
 
 # Architecture
 
