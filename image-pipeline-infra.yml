@@ -132,7 +132,9 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: UnrealBuildServerImageInstanceProfile
+      InstanceProfileName:
+        Fn::Sub:
+          UnrealBuildServerImageInstanceProfile-${UnrealMajorVersion}-${UnrealMinorVersion}
       Roles:
         - Ref: InstanceRole
 
