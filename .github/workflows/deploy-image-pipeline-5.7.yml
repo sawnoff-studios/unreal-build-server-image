@@ -69,6 +69,11 @@ jobs:
             --query "Stacks[0].Outputs[?OutputKey=='GitComponentArn'].OutputValue" \
             --output text)
           
+          GIT_LFS_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='GitLfsComponentArn'].OutputValue" \
+            --output text)
+          
           GITHUB_ACTIONS_RUNNER_COMPONENT_ARN=$(aws cloudformation describe-stacks \
             --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
             --query "Stacks[0].Outputs[?OutputKey=='GitHubActionsRunnerComponentArn'].OutputValue" \
@@ -83,6 +88,7 @@ jobs:
           echo "CLOUD_WATCH_AGENT_COMPONENT_ARN=$CLOUD_WATCH_AGENT_COMPONENT_ARN" >> $GITHUB_OUTPUT
           echo "SEVEN_ZIP_COMPONENT_ARN=$SEVEN_ZIP_COMPONENT_ARN" >> $GITHUB_OUTPUT
           echo "GIT_COMPONENT_ARN=$GIT_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "GIT_LFS_COMPONENT_ARN=$GIT_LFS_COMPONENT_ARN" >> $GITHUB_OUTPUT
           echo "GITHUB_ACTIONS_RUNNER_COMPONENT_ARN=$GITHUB_ACTIONS_RUNNER_COMPONENT_ARN" >> $GITHUB_OUTPUT
           echo "VISUAL_STUDIO_COMPONENT_ARN=$VISUAL_STUDIO_COMPONENT_ARN" >> $GITHUB_OUTPUT
 
@@ -108,6 +114,7 @@ jobs:
             CloudWatchAgentComponentArn=${{ steps.get-component-arns.outputs.CLOUD_WATCH_AGENT_COMPONENT_ARN }},\
             7ZipComponentArn=${{ steps.get-component-arns.outputs.SEVEN_ZIP_COMPONENT_ARN }},\
             GitComponentArn=${{ steps.get-component-arns.outputs.GIT_COMPONENT_ARN }},\
+            GitLfsComponentArn=${{ steps.get-component-arns.outputs.GIT_LFS_COMPONENT_ARN }},\
             GitHubActionsRunnerComponentArn=${{ steps.get-component-arns.outputs.GITHUB_ACTIONS_RUNNER_COMPONENT_ARN }},\
             VisualStudioComponentArn=${{ steps.get-component-arns.outputs.VISUAL_STUDIO_COMPONENT_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'

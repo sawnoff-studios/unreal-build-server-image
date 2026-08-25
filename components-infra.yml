@@ -390,6 +390,11 @@ Outputs:
     Value:
       Ref: GitComponent
 
+  GitLfsComponentArn:
+    Description: Git LFS Component ARN
+    Value:
+      Ref: GitLfsComponent
+
   GitHubActionsRunnerComponentArn:
     Description: GitHub Actions Runner Component ARN
     Value:
