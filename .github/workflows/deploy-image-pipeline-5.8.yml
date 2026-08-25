@@ -105,7 +105,7 @@ jobs:
             SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},\
             RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},\
             AwsCliComponentArn=${{ steps.get-component-arns.outputs.AWS_CLI_COMPONENT_ARN }},\
-            CloudWatchAgentComponentArn=${{ steps.get-component-arns.outputs.CLOUDWATCH_AGENT_COMPONENT_ARN }},\
+            CloudWatchAgentComponentArn=${{ steps.get-component-arns.outputs.CLOUD_WATCH_AGENT_COMPONENT_ARN }},\
             7ZipComponentArn=${{ steps.get-component-arns.outputs.SEVEN_ZIP_COMPONENT_ARN }},\
             GitComponentArn=${{ steps.get-component-arns.outputs.GIT_COMPONENT_ARN }},\
             GitHubActionsRunnerComponentArn=${{ steps.get-component-arns.outputs.GITHUB_ACTIONS_RUNNER_COMPONENT_ARN }},\
