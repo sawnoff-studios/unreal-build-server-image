@@ -3,7 +3,7 @@ name: Deploy 5.5 Image Build Pipeline
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Deploy EC2 Image Builder Components"]
+    workflows: ["Deploy Base Image Build Components"]
     types: [completed]
 
 env:
