@@ -162,8 +162,12 @@ Resources:
   UnrealEngineComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name: Install-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
-      Description: Installs Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion}
+      Name:
+        Fn::Sub:
+          Install-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
+      Description:
+        Fn::Sub:
+          Installs Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion}
       Platform: Windows
       Version: 1.0.0
       ChangeDescription: Initial Unreal Engine component
