@@ -46,6 +46,10 @@ Parameters:
     Type: String
     Description: ARN of the Git component for image builder
 
+  GitLfsComponentArn:
+    Type: String
+    Description: ARN of the Git LFS component for image builder
+
   GitHubActionsRunnerComponentArn:
     Type: String
     Description: ARN of the GitHub Actions Runner component for image builder
