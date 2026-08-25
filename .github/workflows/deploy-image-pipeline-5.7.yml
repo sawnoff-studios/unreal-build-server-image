@@ -1,4 +1,4 @@
-name: Deploy Unreal Engine 5.7 Image Build Pipeline
+name: Deploy 5.7 Image Build Pipeline
 
 on:
   workflow_dispatch:
