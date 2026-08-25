@@ -443,7 +443,7 @@ Resources:
                       $ZipFilePath = "C:\Windows\Temp\UnrealEngine.zip"
         
                       Write-Host "Downloading Unreal Engine binaries..."
-                      Read-S3Object -BucketName unreal-build-server-files -Key UE_5.5.zip -File $ZipFilePath
+                      Read-S3Object -BucketName unreal-build-server-files -Key UE_5.6.zip -File $ZipFilePath
         
                       if (!(Test-Path $ZipFilePath)) {
                         throw "Unreal Engine download failed"
@@ -468,7 +468,7 @@ Resources:
                   commands:
                     - |
                       $ErrorActionPreference = "Stop"
-                      $UnrealPath = "C:\Program Files\Epic Games\UE_5.5\"
+                      $UnrealPath = "C:\Program Files\Epic Games\UE_5.6\"
 
                       Write-Host "Verifying Unreal Engine extraction..."
 
