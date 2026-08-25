@@ -252,14 +252,14 @@ Resources:
             VolumeSize: 250
             VolumeType: gp3
       Components:
-        - ComponentArn: AwsCliComponentArn
-        - ComponentArn: CloudWatchAgentComponentArn
-        - ComponentArn: 7ZipComponentArn
-        - ComponentArn: GitComponentArn
-        - ComponentArn: GitLfsComponentArn
-        - ComponentArn: GitHubActionsRunnerComponentArn
+        - ComponentArn: !Sub ${AwsCliComponentArn}
+        - ComponentArn: !Sub ${CloudWatchAgentComponentArn}
+        - ComponentArn: !Sub ${7ZipComponentArn}
+        - ComponentArn: !Sub ${GitComponentArn}
+        - ComponentArn: !Sub ${GitLfsComponentArn}
+        - ComponentArn: !Sub ${GitHubActionsRunnerComponentArn}
         - ComponentArn: !Ref UnrealEngineComponent
-        - ComponentArn: VisualStudioComponent
+        - ComponentArn: !Sub ${VisualStudioComponentArn}
 
 
   # AMI distribution
