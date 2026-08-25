@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - "components-infra.yml"
+      - "image-pipeline-infra.yml"
 
 env:
   PROJECT_NAME: "UnrealBuildServerImageComponentsStack"
