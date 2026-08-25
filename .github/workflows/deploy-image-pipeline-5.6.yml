@@ -1,0 +1,62 @@
+name: Deploy Image Build Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "image-pipeline-infra.yml"
+
+env:
+  PROJECT_NAME: "Unreal56BuildServerImage"
+  AWS_REGION: "ap-southeast-2"
+  INSTANCE_TYPE: "c5.xlarge"
+  LOG_BUCKET_NAME: "unreal-build-server-image-logs"
+  FILES_BUCKET_NAME: "unreal-build-server-files"
+  UNREAL_MAJOR_VERSION: "5"
+  UNREAL_MINOR_VERSION: "6"
+  RUNNER_TOKEN_LAMBDA_STACK_NAME: "UnrealBuildServerRunnerTokenLambdaStack"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  DeployStack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Get runner token Lambda ARN
+        id: get-runner-token-lambda-arn
+        run: |
+          RUNNER_TOKEN_LAMBDA_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.RUNNER_TOKEN_LAMBDA_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='LambdaArn'].OutputValue" \
+            --output text)
+          
+          echo "LAMBDA_ARN=$RUNNER_TOKEN_LAMBDA_ARN" >> $GITHUB_OUTPUT
+
+      - name: Remove existing CloudFormation stack
+        run: |
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME }}Stack
+
+      - name: Deploy CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME }}Stack
+          template: ${{ github.workspace }}/image-pipeline-infra.yml
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'

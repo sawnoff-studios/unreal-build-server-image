@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_NAME: "RunUnrealBuildServerImagePipeline"
+  PROJECT_NAME: "RunUnreal58BuildServerImagePipeline"
   AWS_REGION: "ap-southeast-2"
-  BUILD_IMAGE_STACK_NAME: "UnrealBuildServerImageStack"
+  BUILD_IMAGE_STACK_NAME: "Unreal58BuildServerImageStack"
 
 permissions:
   id-token: write

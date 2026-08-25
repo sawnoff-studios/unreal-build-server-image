@@ -9,13 +9,13 @@ on:
       - "image-pipeline-infra.yml"
 
 env:
-  PROJECT_NAME: "UnrealBuildServerImage"
+  PROJECT_NAME: "Unreal56BuildServerImage"
   AWS_REGION: "ap-southeast-2"
   INSTANCE_TYPE: "c5.xlarge"
   LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   FILES_BUCKET_NAME: "unreal-build-server-files"
   UNREAL_MAJOR_VERSION: "5"
-  UNREAL_MINOR_VERSION: "6"
+  UNREAL_MINOR_VERSION: "8"
   RUNNER_TOKEN_LAMBDA_STACK_NAME: "UnrealBuildServerRunnerTokenLambdaStack"
 
 permissions:
