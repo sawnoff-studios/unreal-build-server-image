@@ -51,7 +51,7 @@ jobs:
         run: |
           AWS_CLI_COMPONENT_ARN=$(aws cloudformation describe-stacks \
             --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
-            --query "Stacks[0].Outputs[?OutputKey=='ComponentArn'].OutputValue" \
+            --query "Stacks[0].Outputs[?OutputKey=='AwsCliComponentArn'].OutputValue" \
             --output text)
           
           CLOUD_WATCH_AGENT_COMPONENT_ARN=$(aws cloudformation describe-stacks \
