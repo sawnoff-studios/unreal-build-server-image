@@ -1,4 +1,6 @@
-﻿Description: Deploys an EC2 Image Builder Pipeline that creates a self-hosted GitHub Actions runner for Unreal Engine.
+﻿Description:
+  Fn::Sub:
+    Deploys an EC2 Image Builder Pipeline that creates a self-hosted GitHub Actions runner for Unreal Engine ${UnrealEngineMinorVersion}.${UnrealEngineMajorVersion}.
 
 Parameters:
   InstanceType:
