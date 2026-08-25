@@ -2,6 +2,9 @@ name: Deploy Image Build Pipeline
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Deploy EC2 Image Builder Components"]
+    types: [completed]
   push:
     branches:
       - main
@@ -17,6 +20,7 @@ env:
   UNREAL_MAJOR_VERSION: "5"
   UNREAL_MINOR_VERSION: "6"
   RUNNER_TOKEN_LAMBDA_STACK_NAME: "UnrealBuildServerRunnerTokenLambdaStack"
+  COMPONENTS_STACK_NAME: "UnrealBuildServerImageComponentsStack"
 
 permissions:
   id-token: write
@@ -47,6 +51,46 @@ jobs:
           
           echo "LAMBDA_ARN=$RUNNER_TOKEN_LAMBDA_ARN" >> $GITHUB_OUTPUT
 
+      - name: Get component ARNs
+        id: get-component-arns
+        run: |
+          AWS_CLI_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='ComponentArn'].OutputValue" \
+            --output text)
+          
+          CLOUD_WATCH_AGENT_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='CloudWatchAgentComponentArn'].OutputValue" \
+            --output text)
+          
+          SEVEN_ZIP_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='7ZipComponentArn'].OutputValue" \
+            --output text)
+          
+          GIT_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='GitComponentArn'].OutputValue" \
+            --output text)
+          
+          GITHUB_ACTIONS_RUNNER_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='GitHubActionsRunnerComponentArn'].OutputValue" \
+            --output text)
+          
+          VISUAL_STUDIO_COMPONENT_ARN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.COMPONENTS_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='VisualStudioComponentArn'].OutputValue" \
+            --output text)
+          
+          echo "AWS_CLI_COMPONENT_ARN=$AWS_CLI_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "CLOUD_WATCH_AGENT_COMPONENT_ARN=$CLOUD_WATCH_AGENT_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "SEVEN_ZIP_COMPONENT_ARN=$SEVEN_ZIP_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "GIT_COMPONENT_ARN=$GIT_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "GITHUB_ACTIONS_RUNNER_COMPONENT_ARN=$GITHUB_ACTIONS_RUNNER_COMPONENT_ARN" >> $GITHUB_OUTPUT
+          echo "VISUAL_STUDIO_COMPONENT_ARN=$VISUAL_STUDIO_COMPONENT_ARN" >> $GITHUB_OUTPUT
+
       - name: Remove existing CloudFormation stack
         run: |
           aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
@@ -58,5 +102,17 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},LogBucketName=${{ env.LOG_BUCKET_NAME }},FilesBucketName=${{ env.FILES_BUCKET_NAME }},SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }}"
+          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},\
+            LogBucketName=${{ env.LOG_BUCKET_NAME }},\
+            FilesBucketName=${{ env.FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},\
+            UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }},\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }},\
+            RunnerTokenLambdaArn=${{ steps.get-runner-token-lambda-arn.outputs.LAMBDA_ARN }},\
+            AwsCliComponentArn=${{ steps.get-component-arns.outputs.AWS_CLI_COMPONENT_ARN }},\
+            CloudWatchComponentArn=${{ steps.get-component-arns.outputs.CLOUDWATCH_COMPONENT_ARN }},\
+            SevenZipComponentArn=${{ steps.get-component-arns.outputs.SEVEN_ZIP_COMPONENT_ARN }},\
+            GitComponentArn=${{ steps.get-component-arns.outputs.GIT_COMPONENT_ARN }},\
+            GitHubActionsRunnerComponentArn=${{ steps.get-component-arns.outputs.GITHUB_ACTIONS_RUNNER_COMPONENT_ARN }},\
+            VisualStudioComponentArn=${{ steps.get-component-arns.outputs.VISUAL_STUDIO_COMPONENT_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'

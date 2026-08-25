@@ -1,0 +1,401 @@
+Description: Deploys EC2 Image Builder Components for Unreal Engine
+
+Resources:
+  # Custom component to install AWS CLI
+  AwsCliComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-AWS-CLI
+      Version: 1.0.0
+      Description: Install AWS CLI for Windows
+      Platform: Windows
+      Data: |
+        name: Installs AWS CLI
+        description: Installs AWS CLI using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: InstallAwsCli
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://awscli.amazonaws.com/AWSCLIV2.msi"
+                      $installer = "C:\Windows\Temp\AWSCLIV2.msi"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+                      Start-Process `
+                        -FilePath "msiexec.exe" `
+                        -ArgumentList "/i C:\Windows\Temp\AWSCLIV2.msi /qn /norestart" `
+                        -Wait
+
+              - name: VerifyAwsCli
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      aws --version
+  
+
+  # Custom component to install CloudWatch Agent
+  CloudWatchAgentComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-CloudWatch-Agent
+      Version: 1.0.0
+      Description: Install Amazon CloudWatch Agent for Windows
+      Platform: Windows
+      Data: |
+        name: Installs CloudWatch Agent
+        description: Installs Amazon CloudWatch Agent using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://s3.amazonaws.com/amazoncloudwatch-agent/windows/amd64/latest/amazon-cloudwatch-agent.msi"
+                      $installer = "C:\Windows\Temp\amazon-cloudwatch-agent.msi"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "msiexec.exe" `
+                        -ArgumentList "/i C:\Windows\Temp\amazon-cloudwatch-agent.msi /qn /norestart" `
+                        -Wait
+
+              - name: VerifyCloudWatchAgent
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $agentPath = "C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent.exe"
+                      if (!(Test-Path $agentPath)) {
+                        throw "CloudWatch Agent not found at $agentPath"
+                      }
+                      Write-Host "CloudWatch Agent installed successfully"
+
+
+  # Custom component to install 7Zip
+  7ZipComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-7Zip
+      Version: 1.0.0
+      Description: Install 7-Zip for Windows
+      Platform: Windows
+      Data: |
+        name: Installs 7-Zip for Windows
+        description: Installs 7-Zip using the official installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: Download7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://www.7-zip.org/a/7z2408-x64.exe"
+                      $installer = "C:\Windows\Temp\7ZipInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: Install7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\7ZipInstaller.exe" `
+                        -ArgumentList "/S" `
+                        -Wait
+
+              - name: Verify7Zip
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $7zipPath = "C:\Program Files\7-Zip\7z.exe"
+                      if (!(Test-Path $7zipPath)) {
+                        throw "7-Zip not found at $7zipPath"
+                      }
+                      Write-Host "7-Zip installed successfully"
+  
+
+  # Custom component to install Git
+  GitComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-Git
+      Version: 1.0.0
+      Description: Installs Git for Windows
+      Platform: Windows
+      Data: |
+        name: Install Git for Windows
+        description: Installs Git using the official Git for Windows installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.2/Git-2.55.0.2-64-bit.exe"
+                      $installer = "C:\Windows\Temp\GitInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\GitInstaller.exe" `
+                        -ArgumentList "/VERYSILENT /NORESTART" `
+                        -Wait
+
+              - name: VerifyGit
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git --version
+
+
+  # Custom component to install Git LFS
+  GitLfsComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-Git-LFS
+      Version: 1.0.0
+      Description: Installs Git LFS for Windows
+      Platform: Windows
+      Data: |
+        name: Install Git for Windows
+        description: Installs Git LFS using the official Git LFS for Windows installer
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadGitLfs
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $url = "https://github.com/git-lfs/git-lfs/releases/download/v3.4.0/git-lfs-windows-v3.4.0.exe"
+                      $installer = "C:\Windows\Temp\GitLfsInstaller.exe"
+                      Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile $installer
+
+              - name: InstallGitLfs
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      Start-Process `
+                        -FilePath "C:\Windows\Temp\GitLfsInstaller.exe" `
+                        -ArgumentList "/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART" `
+                        -Wait
+
+              - name: VerifyGitLfs
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git lfs --version
+        
+              - name: ConfigureGitLfs
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      git config --global lfs.concurrenttransfers 64
+
+
+  # GitHub Actions Runner component
+  GitHubActionsRunnerComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-GitHub-Actions-Runner
+      Description: Installs the GitHub Actions runner on Windows
+      Platform: Windows
+      Version: '1.0.0'
+      Data: |
+        name: Install-GitHub-Actions-Runner
+        description: Installs GitHub Actions runner binaries
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: DownloadAndExtractRunner
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      # Create a folder under the drive root
+                      New-Item -ItemType Directory -Path C:\actions-runner -Force
+                      Set-Location C:\actions-runner
+
+                      # Download the latest runner package
+                      Invoke-WebRequest `
+                        -Uri https://github.com/actions/runner/releases/download/v2.335.1/actions-runner-win-x64-2.335.1.zip `
+                        -OutFile actions-runner.zip
+
+                      # Validate the hash
+                      if ((Get-FileHash `
+                        -Path actions-runner.zip `
+                        -Algorithm SHA256).Hash.ToUpper() `
+                        -ne 'EB65C95277AF42BCF3778A799C41359D224BA2A67B4DE26B7CEA1729B09C803D') {
+                          throw 'Computed checksum did not match'
+                      }
+
+                      # Extract the installer
+                      Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+                      [System.IO.Compression.ZipFile]::ExtractToDirectory(
+                        "C:\actions-runner\actions-runner.zip",
+                        "C:\actions-runner"
+                      )
+  
+
+  # Custom component to install Visual Studio 2022 Community Edition
+  VisualStudioComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: Install-VisualStudio-2022-Community
+      Platform: Windows
+      Version: 1.0.0
+      Description: Installs Visual Studio 2022 Community Edition
+      Data: |
+        name: Install Visual Studio 2022 Community
+        description: Downloads and installs Visual Studio 2022 Community
+        schemaVersion: 1.0
+
+        phases:
+          - name: build
+            steps:
+              - name: InstallVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $ErrorActionPreference = "Stop"
+
+                      $InstallerPath = "C:\Windows\Temp\vs_community.exe"
+
+                      Write-Host "Downloading Visual Studio Community installer..."
+
+                      Invoke-WebRequest `
+                        -Uri "https://aka.ms/vs/17/release/vs_community.exe" `
+                        -OutFile $InstallerPath
+
+                      Write-Host "Installing Visual Studio..."
+
+                      $process = Start-Process `
+                        -FilePath $InstallerPath `
+                        -ArgumentList @(
+                          "--quiet",
+                          "--wait",
+                          "--norestart",
+                          "--nocache",
+                          "--add",
+                          "Microsoft.VisualStudio.Workload.NativeGame",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64.Spectre",
+                          "--add",
+                          "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64.Spectre",
+                          "--includeRecommended"
+                        ) `
+                        -Wait `
+                        -PassThru
+
+                      $exitCode = $process.ExitCode
+                      Write-Host "Visual Studio installer exited with code: $exitCode"
+        
+                      if ($exitCode -ne 0) {
+                        throw "Visual Studio installation failed with exit code $exitCode"
+                      }
+        
+                      if ($exitCode -eq 3010) {
+                        Write-Host "Visual Studio installation requires a reboot (exit code 3010). Continuing."
+                      }
+
+                      Write-Host "Cleaning up installer..."
+
+                      Remove-Item `
+                        -Path $InstallerPath `
+                        -Force
+
+                      Write-Host "Visual Studio installation complete."
+        
+              - name: VerifyVisualStudio
+                action: ExecutePowerShell
+                inputs:
+                  commands:
+                    - |
+                      $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+                      $installPath = & $vswhere -latest -property installationPath
+                      if (-not $installPath) {
+                        throw "Visual Studio not detected"
+                      }
+                      Write-Host "Visual Studio installed at: $installPath"
+
+Outputs:
+  AwsCliComponentArn:
+    Description: AWS CLI Component ARN
+    Value:
+      Ref: AwsCliComponent
+
+  CloudWatchAgentComponentArn:
+    Description: CloudWatch Agent Component ARN
+    Value:
+      Ref: CloudWatchAgentComponent
+
+  7ZipComponentArn:
+    Description: 7-Zip Component ARN
+    Value:
+      Ref: 7ZipComponent
+
+  GitComponentArn:
+    Description: Git Component ARN
+    Value:
+      Ref: GitComponent
+
+  GitHubActionsRunnerComponentArn:
+    Description: GitHub Actions Runner Component ARN
+    Value:
+      Ref: GitHubActionsRunnerComponent
+
+  VisualStudioComponentArn:
+    Description: Visual Studio Component ARN
+    Value:
+      Ref: VisualStudioComponent
