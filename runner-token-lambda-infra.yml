@@ -58,13 +58,11 @@ Resources:
           GITHUB_ORGANISATION: !Ref GitHubOrganisation
       Policies:
         - AWSLambdaBasicExecutionRole
-        - PolicyName: GitHubRunnerTokenLambdaGetSecretValue
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action: secretsmanager:GetSecretValue
-                Resource: !Ref GitHubRunnerAppSecret
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref GitHubRunnerAppSecret
 
 
 Outputs:
