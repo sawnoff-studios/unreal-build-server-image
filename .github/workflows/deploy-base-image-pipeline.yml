@@ -6,6 +6,7 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/deploy-base-image-pipeline.yml"
       - "base-image-pipeline-infra.yml"
 
 env:
