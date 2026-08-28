@@ -46,6 +46,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: github-runner-token
+      Description: Creates GitHub Actions runner registration tokens using a GitHub App
       Runtime: nodejs24.x
       Handler: index.handler
       Timeout: 30
