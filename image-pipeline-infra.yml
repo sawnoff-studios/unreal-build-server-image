@@ -6,10 +6,6 @@ Parameters:
     Default: c5.large
     Description: EC2 instance type used during image build
 
-  LogBucketName:
-    Type: String
-    Description: Name of the S3 bucket for image builder logs
-
   FilesBucketName:
     Type: String
     Description: Name of the S3 bucket for Unreal Engine files
@@ -25,10 +21,6 @@ Parameters:
   SnsTopicArn:
     Type: String
     Description: SNS topic ARN for notifications
-
-  RunnerTokenLambdaArn:
-    Type: String
-    Description: ARN of the Lambda function that retrieves GitHub self-hosted runner tokens
 
 
 Resources:
