@@ -1,6 +1,11 @@
 ﻿Description: Deploys an EC2 Image Builder Pipeline that creates a self-hosted GitHub Actions runner for Unreal Engine.
 
 Parameters:
+  ResourceName:
+    Type: String
+    Default: WindowsServer2025-Unreal-Engine
+    Description: A name to use for all Image Builder resources
+
   InstanceType:
     Type: String
     Default: c5.large
@@ -35,7 +40,7 @@ Resources:
       Comment: Role to be used by instance during image build.
     Properties:
       RoleName:
-        Fn::Sub: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRole
+        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRole
       ManagedPolicyArns:
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
@@ -60,7 +65,7 @@ Resources:
       Comment: Allows the instance to save log files to an S3 bucket.
     Properties:
       PolicyName:
-        Fn::Sub: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRoleLoggingPolicy
+        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRoleLoggingPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -81,7 +86,7 @@ Resources:
       Comment: Allows the instance to download files from an S3 bucket.
     Properties:
       PolicyName:
-        Fn::Sub: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceFilesBucketPolicy
+        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceFilesBucketPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -102,7 +107,7 @@ Resources:
     Type: AWS::IAM::InstanceProfile
     Properties:
       InstanceProfileName:
-        Fn::Sub: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceProfile
+        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceProfile
       Roles:
         - Ref: InstanceRole
 
@@ -115,7 +120,7 @@ Resources:
     Properties:
       Name:
         Fn::Sub:
-          WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-BuildInfrastructure
+          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-BuildInfrastructure
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
@@ -218,7 +223,7 @@ Resources:
     Properties:
       Name:
         Fn::Sub:
-          WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
+          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
       Version: 1.0.0
       ParentImage: !ImportValue UnrealBuildServerBaseImage
       BlockDeviceMappings:
@@ -236,14 +241,14 @@ Resources:
     Properties:
       Name:
         Fn::Sub:
-          WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
+          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
       Distributions:
         - Region:
             Ref: AWS::Region
           AmiDistributionConfiguration:
             Name:
               Fn::Sub:
-                WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
+                ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
             Description:
               Fn::Sub:
                 Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
@@ -257,7 +262,7 @@ Resources:
     Properties:
       Name:
         Fn::Sub:
-          WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}-Pipeline
+          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-Pipeline
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:
