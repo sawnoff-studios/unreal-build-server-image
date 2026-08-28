@@ -617,7 +617,7 @@ Outputs:
   ImageBuilderPipelineArn:
     Description: Image Builder Pipeline ARN
     Value:
-      Ref: ImagePipeline
+      Ref: !GetAtt ImagePipeline.Arn
 
   UnrealBuildServerBaseImage:
     Value: !Join
