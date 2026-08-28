@@ -1,4 +1,4 @@
-name: Deploy Base Image Build Components
+name: Deploy Base Image Build Pipeline
 
 on:
   workflow_dispatch:
@@ -6,11 +6,10 @@ on:
     branches:
       - main
     paths:
-      - "components-infra.yml"
-      - "image-pipeline-infra.yml"
+      - "base-image-pipeline-infra.yml"
 
 env:
-  PROJECT_NAME: "UnrealBuildServerImageComponents"
+  PROJECT_NAME: "UnrealBuildServerBaseImage"
   AWS_REGION: "ap-southeast-2"
 
 permissions:
@@ -32,9 +31,14 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v7
 
+      - name: Remove existing CloudFormation stack
+        run: |
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME }}Stack
+
       - name: Deploy CloudFormation stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/components-infra.yml
+          template: ${{ github.workspace }}/base-image-pipeline-infra.yml

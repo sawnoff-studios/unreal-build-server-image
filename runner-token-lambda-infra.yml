@@ -67,14 +67,6 @@ Resources:
 
 
 Outputs:
-  LambdaName:
-    Description: Lambda function name
-    Value: !Ref GitHubRunnerTokenLambda
-
-  LambdaArn:
+  RunnerTokenLambdaArn:
     Description: Lambda ARN
     Value: !GetAtt GitHubRunnerTokenLambda.Arn
-
-  GitHubSecret:
-    Description: Secrets Manager secret name
-    Value: !Ref GitHubRunnerAppSecret

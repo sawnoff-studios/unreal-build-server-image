@@ -1,6 +1,129 @@
 Description: Deploys EC2 Image Builder Components for Unreal Engine
 
+Parameters:
+  InstanceType:
+    Type: String
+    Default: m5.xlarge
+    Description: EC2 instance type used during image build
+
+  LogBucketName:
+    Type: String
+    Description: Name of the S3 bucket for image builder logs
+
+  FilesBucketName:
+    Type: String
+    Description: Name of the S3 bucket for Unreal Engine files
+
+  SnsTopicArn:
+    Type: String
+    Description: SNS topic ARN for notifications
+
 Resources:
+  # EC2 instance role
+  # By default, AWS Services do not have permission to perform actions on your instances. This grants
+  # AWS Systems Manager (SSM) and EC2 Image Builder the necessary permissions to build an image.
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+  # https://docs.aws.amazon.com/imagebuilder/latest/userguide/image-builder-setting-up.html
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      Comment: Role to be used by instance during image build.
+    Properties:
+      RoleName:
+        Fn::Sub: WindowsServer2025-Unreal-Engine-Base-InstanceRole
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'ec2.${AWS::URLSuffix}'
+      Path: /executionServiceEC2Role/
+
+
+  # EC2 instance role logging policy
+  # Policy to allow the instance to write to the S3 bucket (via instance role / instance profile).
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html
+  InstanceRoleLoggingPolicy:
+    Type: AWS::IAM::Policy
+    Metadata:
+      Comment: Allows the instance to save log files to an S3 bucket.
+    Properties:
+      PolicyName:
+        Fn::Sub: WindowsServer2025-Unreal-Engine-Base-InstanceRoleLoggingPolicy
+      Roles:
+        - Ref: InstanceRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:PutObject
+            Effect: Allow
+            Resource:
+              - Fn::Sub: arn:${AWS::Partition}:s3:::${LogBucketName}/*
+
+
+  # EC2 instance role files bucket policy
+  # Policy to allow the instance to download Unreal Engine files
+  InstanceFilesBucketPolicy:
+    Type: AWS::IAM::Policy
+    Metadata:
+      Comment: Allows the instance to download files from an S3 bucket.
+    Properties:
+      PolicyName:
+        Fn::Sub: WindowsServer2025-Unreal-Engine-Base-InstanceFilesBucketPolicy
+      Roles:
+        - Ref: InstanceRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              - Fn::Sub: arn:${AWS::Partition}:s3:::${FilesBucketName}/*
+
+
+  # EC2 instance profile
+  # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
+  # This profile will be used during the image build process.
+  # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: WindowsServer2025-Unreal-Engine-InstanceProfile
+      Roles:
+        - Ref: InstanceRole
+
+
+  # Build instance configuration
+  # Specifies the infrastructure within which to build and test your image.
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-imagebuilder-infrastructureconfiguration.html
+  InfrastructureConfiguration:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
+    Properties:
+      Name: WindowsServer2025-Unreal-Engine-Base-BuildInfrastructure
+      InstanceTypes:
+        - !Ref InstanceType
+      InstanceProfileName:
+        Ref: InstanceProfile
+      SnsTopicArn: !Ref SnsTopicArn
+      # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
+      Logging:
+        S3Logs:
+          S3BucketName: !Ref LogBucketName
+      #           S3KeyPrefix: 'my-imagebuilder-bucket-prefix'
+      # If you would like to keep the instance running after a failed build, set TerminateInstanceOnFailure to false.
+      # TerminateInstanceOnFailure: false
+      # If you do not have a default VPC or want to use a different VPC, you must specify the subnet ID to use
+      # SubnetId: 'subnet-id'
+
+
   # Custom component to install AWS CLI
   AwsCliComponent:
     Type: AWS::ImageBuilder::Component
@@ -369,38 +492,148 @@ Resources:
                       }
                       Write-Host "Visual Studio installed at: $installPath"
 
+
+  # Windows Server 2025 base image
+  ImageRecipe:
+    Type: AWS::ImageBuilder::ImageRecipe
+    Properties:
+      Name: WindowsServer2025-Unreal-Engine-Base
+      Version: 1.0.0
+      # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
+      # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
+      # regions use aws-cn and AWS GovCloud (US) regions are aws-us-gov.
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
+      ParentImage:
+        Fn::Sub:
+          arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 250
+            VolumeType: gp3
+      Components:
+        - ComponentArn: !Ref AwsCliComponent
+        - ComponentArn: !Ref CloudWatchAgentComponent
+        - ComponentArn: !Ref 7ZipComponent
+        - ComponentArn: !Ref GitComponent
+        - ComponentArn: !Ref GitLfsComponent
+        - ComponentArn: !Ref GitHubActionsRunnerComponent
+        - ComponentArn: !Ref VisualStudioComponent
+
+
+  # AMI distribution
+  DistributionConfiguration:
+    Type: AWS::ImageBuilder::DistributionConfiguration
+    Properties:
+      Name: WindowsServer2025-Unreal-Engine-Base
+      Distributions:
+        - Region:
+            Ref: AWS::Region
+          AmiDistributionConfiguration:
+            Name:
+              Fn::Sub:
+                WindowsServer2025-Unreal-Engine-Base-{{imagebuilder:buildDate}}
+            Description: Windows Server 2025 with Unreal Engine base components installed
+
+
+  # Image pipeline
+  ImagePipeline:
+    Type: AWS::ImageBuilder::ImagePipeline
+    Properties:
+      Name: WindowsServer2025-Unreal-Engine-Base-Pipeline
+      ImageRecipeArn:
+        Ref: ImageRecipe
+      InfrastructureConfigurationArn:
+        Ref: InfrastructureConfiguration
+      DistributionConfigurationArn:
+        Ref: DistributionConfiguration
+      Status:
+        ENABLED
+
+
+  # A CloudFormation export is used to allow future stacks to use the output image from this stack.
+  # As an Image ARN uses lowercase names, we will use a custom Lambda Function to transform the
+  # name to lowercase.
+  LowerCaseLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Returns the lowercase version of a string
+      MemorySize: 256
+      Runtime: python3.8
+      Handler: index.lambda_handler
+      Role: !GetAtt LowerCaseLambdaRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import cfnresponse
+
+          def lambda_handler(event, context):
+              output = event['ResourceProperties'].get('InputString', '').lower()
+              responseData = {'OutputString': output}
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+
+  # The CloudWatch Log Group for the Lambda Function.
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LowerCaseLambda}'
+      RetentionInDays: 3
+
+
+  # The IAM Role for the Lambda Function
+  LowerCaseLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'lambda.${AWS::URLSuffix}'
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: lambda-write-logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*
+
+
+  # Invokes the Lambda Function to ensure a lowercase resource name is available.
+  LowerCaseImageName:
+    Type: Custom::Lowercase
+    DependsOn:
+      - LambdaLogGroup
+    Properties:
+      ServiceToken: !GetAtt LowerCaseLambda.Arn
+      InputString: !Ref ResourceName
+
+
 Outputs:
-  AwsCliComponentArn:
-    Description: AWS CLI Component ARN
+  ImageBuilderPipelineArn:
+    Description: Image Builder Pipeline ARN
     Value:
-      Ref: AwsCliComponent
+      Ref: ImagePipeline
 
-  CloudWatchAgentComponentArn:
-    Description: CloudWatch Agent Component ARN
-    Value:
-      Ref: CloudWatchAgentComponent
-
-  7ZipComponentArn:
-    Description: 7-Zip Component ARN
-    Value:
-      Ref: 7ZipComponent
-
-  GitComponentArn:
-    Description: Git Component ARN
-    Value:
-      Ref: GitComponent
-
-  GitLfsComponentArn:
-    Description: Git LFS Component ARN
-    Value:
-      Ref: GitLfsComponent
-
-  GitHubActionsRunnerComponentArn:
-    Description: GitHub Actions Runner Component ARN
-    Value:
-      Ref: GitHubActionsRunnerComponent
-
-  VisualStudioComponentArn:
-    Description: Visual Studio Component ARN
-    Value:
-      Ref: VisualStudioComponent
+  UnrealBuildServerBaseImage:
+    Value: !Join
+      - ''
+      - - 'arn:'
+        - !Ref AWS::Partition
+        - ':imagebuilder:'
+        - !Ref AWS::Region
+        - ':'
+        - !Ref AWS::AccountId
+        - ':image/'
+        - !GetAtt LowerCaseImageName.OutputString
+        - '/x.x.x'
+    Export:
+      Name: UnrealBuildServerBaseImage
