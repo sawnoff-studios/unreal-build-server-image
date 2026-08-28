@@ -6,10 +6,6 @@ Parameters:
     Default: m5.xlarge
     Description: EC2 instance type used during image build
 
-  LogBucketName:
-    Type: String
-    Description: Name of the S3 bucket for image builder logs
-
   FilesBucketName:
     Type: String
     Description: Name of the S3 bucket for Unreal Engine files
@@ -65,7 +61,7 @@ Resources:
               - s3:PutObject
             Effect: Allow
             Resource:
-              - Fn::Sub: arn:${AWS::Partition}:s3:::${LogBucketName}/*
+              - !Import ImageBuilderLogBucketArn
 
 
   # EC2 instance role files bucket policy

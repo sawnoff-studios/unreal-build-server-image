@@ -27,7 +27,9 @@ Resources:
         Status: Enabled
 
 Outputs:
-  PipelineArn:
+  ImageBuilderLogBucketArn:
     Description: Image Builder Log S3 Bucket ARN
     Value:
       Ref: ImageBuilderLogBucket
+    Export:
+      Name: ImageBuilderLogBucketArn

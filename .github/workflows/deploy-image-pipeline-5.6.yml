@@ -48,10 +48,10 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/image-pipeline-infra.yml
-          parameter-overrides: "InstanceType=${{ env.INSTANCE_TYPE }},\
-            LogBucketName=${{ env.LOG_BUCKET_NAME }},\
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
             FilesBucketName=${{ env.FILES_BUCKET_NAME }},\
             UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},\
             UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }},\
-            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
