@@ -29,7 +29,6 @@ Resources:
 Outputs:
   ImageBuilderLogBucketArn:
     Description: Image Builder Log S3 Bucket ARN
-    Value:
-      Ref: !GetAtt ImageBuilderLogBucket.Arn
+    Value: !GetAtt ImageBuilderLogBucket.Arn
     Export:
       Name: ImageBuilderLogBucketArn
