@@ -42,3 +42,8 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}Stack
           template: ${{ github.workspace }}/base-image-pipeline-infra.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.FILES_BUCKET_NAME }},\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
