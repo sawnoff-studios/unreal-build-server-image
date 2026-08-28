@@ -563,6 +563,7 @@ Resources:
   LowerCaseLambda:
     Type: AWS::Lambda::Function
     Properties:
+      FunctionName: lowercase-string
       Description: Returns the lowercase version of a string
       MemorySize: 256
       Runtime: python3.8
@@ -601,7 +602,7 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: lambda-write-logs
+        - PolicyName: LowerCaseStringLambdaWriteLogs
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
