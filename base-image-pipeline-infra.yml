@@ -580,14 +580,6 @@ Resources:
               cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
 
 
-  # The CloudWatch Log Group for the Lambda Function.
-  LambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/aws/lambda/${LowerCaseLambda}'
-      RetentionInDays: 3
-
-
   # The IAM Role for the Lambda Function
   LowerCaseLambdaRole:
     Type: AWS::IAM::Role
@@ -617,8 +609,6 @@ Resources:
   # Invokes the Lambda Function to ensure a lowercase resource name is available.
   LowerCaseImageName:
     Type: Custom::Lowercase
-    DependsOn:
-      - LambdaLogGroup
     Properties:
       ServiceToken: !GetAtt LowerCaseLambda.Arn
       InputString: !Ref ResourceName
