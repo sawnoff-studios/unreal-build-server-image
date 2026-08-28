@@ -61,7 +61,7 @@ Resources:
               - s3:PutObject
             Effect: Allow
             Resource:
-              - !Import ImageBuilderLogBucketArn
+              - !ImportValue ImageBuilderLogBucketArn
 
 
   # EC2 instance role files bucket policy
