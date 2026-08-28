@@ -110,7 +110,7 @@ Resources:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
       Name:
-          Fn::Sub: ${ResourceName}-BuildInfrastructure
+          Fn::Sub: ${ResourceName}
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
@@ -501,7 +501,7 @@ Resources:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
       Name:
-        Fn::Sub: ${ResourceName}-ImageRecipe
+        Fn::Sub: ${ResourceName}
       Version: 1.0.0
       # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
       # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
@@ -530,7 +530,7 @@ Resources:
     Type: AWS::ImageBuilder::DistributionConfiguration
     Properties:
       Name:
-        Fn::Sub: ${ResourceName}-DistributionConfiguration
+        Fn::Sub: ${ResourceName}
       Distributions:
         - Region:
             Ref: AWS::Region
@@ -546,7 +546,7 @@ Resources:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
       Name:
-        Fn::Sub: ${ResourceName}-Pipeline
+        Fn::Sub: ${ResourceName}
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:
