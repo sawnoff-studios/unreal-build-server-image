@@ -2,6 +2,12 @@ name: Deploy Log Bucket
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-log-bucket.yml"
+      - "log-bucket-infra.yml"
 
 env:
   PROJECT_NAME: "UnrealBuildServerImageLogBucket"

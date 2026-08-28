@@ -30,6 +30,6 @@ Outputs:
   ImageBuilderLogBucketArn:
     Description: Image Builder Log S3 Bucket ARN
     Value:
-      Ref: ImageBuilderLogBucket
+      Ref: ImageBuilderLogBucket.Arn
     Export:
       Name: ImageBuilderLogBucketArn
