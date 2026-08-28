@@ -214,14 +214,12 @@ Resources:
                       & $7ZipExePath x -o"C:\Program Files\Epic Games\" $ZipFilePath -y
                       Remove-Item -Path $ZipFilePath -Force
         
-              - name: SetAutomationToolFolderPermissions
+              - name: SetFolderPermissions
                 action: ExecutePowerShell
                 inputs:
                   commands:
                     - |
-                      Remove-Item -Path "C:\Program Files\Epic Games\UE_${UnrealMajorVersion}.${UnrealMinorVersion}\Engine\Programs\AutomationTool\Saved" -Recurse -Force
-                      New-Item -Path "C:\Program Files\Epic Games\UE_${UnrealMajorVersion}.${UnrealMinorVersion}\Engine\Programs\AutomationTool\Saved" -ItemType Directory
-                      icacls "C:\Program Files\Epic Games\UE_${UnrealMajorVersion}.${UnrealMinorVersion}\Engine\Programs\AutomationTool\Saved" /grant "NT AUTHORITY\NETWORK SERVICE:(OI)(CI)M"
+                      icacls "C:\Program Files\Epic Games\UE_${UnrealMajorVersion}.${UnrealMinorVersion}" /grant "NT AUTHORITY\NETWORK SERVICE:(OI)(CI)M" /T /C
         
               - name: VerifyUnrealEngine
                 action: ExecutePowerShell
