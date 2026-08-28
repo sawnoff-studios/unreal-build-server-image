@@ -39,8 +39,7 @@ Resources:
     Metadata:
       Comment: Role to be used by instance during image build.
     Properties:
-      RoleName:
-        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRole
+      RoleName: !Sub ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRole
       ManagedPolicyArns:
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
@@ -64,8 +63,7 @@ Resources:
     Metadata:
       Comment: Allows the instance to save log files to an S3 bucket.
     Properties:
-      PolicyName:
-        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRoleLoggingPolicy
+      PolicyName: !Sub ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceRoleLoggingPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -85,8 +83,7 @@ Resources:
     Metadata:
       Comment: Allows the instance to download files from an S3 bucket.
     Properties:
-      PolicyName:
-        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceFilesBucketPolicy
+      PolicyName: !Sub ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceFilesBucketPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -106,8 +103,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName:
-        Fn::Sub: ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceProfile
+      InstanceProfileName: !Sub ${ResourceName}-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceProfile
       Roles:
         - Ref: InstanceRole
 
@@ -118,9 +114,7 @@ Resources:
   InfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      Name:
-        Fn::Sub:
-          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-BuildInfrastructure
+      Name: !Sub ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-BuildInfrastructure
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
@@ -141,12 +135,8 @@ Resources:
   UnrealEngineComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
-      Name:
-        Fn::Sub:
-          Install-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
-      Description:
-        Fn::Sub:
-          Installs Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion}
+      Name: !Sub Install-Unreal-Engine-${UnrealMajorVersion}-${UnrealMinorVersion}
+      Description: !Sub Installs Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion}
       Platform: Windows
       Version: 1.0.0
       ChangeDescription: Initial Unreal Engine component
@@ -221,9 +211,7 @@ Resources:
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name:
-        Fn::Sub:
-          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
+      Name: !Sub ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
       Version: 1.0.0
       ParentImage: !ImportValue UnrealBuildServerBaseImage
       BlockDeviceMappings:
@@ -239,19 +227,13 @@ Resources:
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
     Properties:
-      Name:
-        Fn::Sub:
-          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
+      Name: !Sub ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}
       Distributions:
         - Region:
             Ref: AWS::Region
           AmiDistributionConfiguration:
-            Name:
-              Fn::Sub:
-                ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
-            Description:
-              Fn::Sub:
-                Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
+            Name: !Sub ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-{{imagebuilder:buildDate}}
+            Description: !Sub Windows Server 2025 with Unreal Engine ${UnrealMajorVersion}.${UnrealMinorVersion} installed
             AmiTags:
               UnrealEngineVersion: !Sub "${UnrealMajorVersion}.${UnrealMinorVersion}"
 
@@ -260,9 +242,7 @@ Resources:
   ImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name:
-        Fn::Sub:
-          ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-Pipeline
+      Name: !Sub ${ResourceName}-${UnrealMajorVersion}-${UnrealMinorVersion}-Pipeline
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:

@@ -30,8 +30,7 @@ Resources:
     Metadata:
       Comment: Role to be used by instance during image build.
     Properties:
-      RoleName:
-        Fn::Sub: ${ResourceName}-InstanceRole
+      RoleName: !Sub ${ResourceName}-InstanceRole
       ManagedPolicyArns:
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
         - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilder
@@ -55,8 +54,7 @@ Resources:
     Metadata:
       Comment: Allows the instance to save log files to an S3 bucket.
     Properties:
-      PolicyName:
-        Fn::Sub: ${ResourceName}-InstanceRoleLoggingPolicy
+      PolicyName: !Sub ${ResourceName}-InstanceRoleLoggingPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -76,8 +74,7 @@ Resources:
     Metadata:
       Comment: Allows the instance to download files from an S3 bucket.
     Properties:
-      PolicyName:
-        Fn::Sub: ${ResourceName}-InstanceFilesBucketPolicy
+      PolicyName: !Sub ${ResourceName}-InstanceFilesBucketPolicy
       Roles:
         - Ref: InstanceRole
       PolicyDocument:
@@ -97,8 +94,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName:
-        Fn::Sub: ${ResourceName}-InstanceProfile
+      InstanceProfileName: !Sub ${ResourceName}-InstanceProfile
       Roles:
         - Ref: InstanceRole
 
@@ -109,8 +105,7 @@ Resources:
   InfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      Name:
-          Fn::Sub: ${ResourceName}
+      Name: !Sub ${ResourceName}
       InstanceTypes:
         - !Ref InstanceType
       InstanceProfileName:
@@ -500,16 +495,13 @@ Resources:
   ImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      Name:
-        Fn::Sub: ${ResourceName}
+      Name: !Sub ${ResourceName}
       Version: 1.0.0
       # ${AWS::Partition} returns the partition where you are running the CloudFormation template. For standard AWS regions, the
       # partition is aws. For resources elsewhere, the partition is aws-partitionname. For example, China (Beijing and Ningxia)
       # regions use aws-cn and AWS GovCloud (US) regions are aws-us-gov.
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html
-      ParentImage:
-        Fn::Sub:
-          arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
+      ParentImage: !Sub arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:image/windows-server-2025-english-full-base-x86/x.x.x
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -529,15 +521,12 @@ Resources:
   DistributionConfiguration:
     Type: AWS::ImageBuilder::DistributionConfiguration
     Properties:
-      Name:
-        Fn::Sub: ${ResourceName}
+      Name: !Sub ${ResourceName}
       Distributions:
         - Region:
             Ref: AWS::Region
           AmiDistributionConfiguration:
-            Name:
-              Fn::Sub:
-                ${ResourceName}-{{imagebuilder:buildDate}}
+            Name: !Sub ${ResourceName}-{{imagebuilder:buildDate}}
             Description: Windows Server 2025 with Unreal Engine base components installed
 
 
@@ -545,8 +534,7 @@ Resources:
   ImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
     Properties:
-      Name:
-        Fn::Sub: ${ResourceName}
+      Name: !Sub ${ResourceName}
       ImageRecipeArn:
         Ref: ImageRecipe
       InfrastructureConfigurationArn:
