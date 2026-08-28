@@ -58,7 +58,8 @@ Resources:
           GITHUB_ORGANISATION: !Ref GitHubOrganisation
       Policies:
         - AWSLambdaBasicExecutionRole
-        - Version: '2012-10-17'
+        - PolicyName: GitHubRunnerTokenLambdaGetSecretValue
+          Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
