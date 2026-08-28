@@ -101,7 +101,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Name:
+      InstanceProfileName:
         Fn::Sub: WindowsServer2025-Unreal-Engine-${UnrealMajorVersion}.${UnrealMinorVersion}-InstanceProfile
       Roles:
         - Ref: InstanceRole
