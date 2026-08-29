@@ -10,10 +10,6 @@ Parameters:
     Type: String
     Description: EC2 instance type used during image build
 
-  FilesBucketName:
-    Type: String
-    Description: Name of the S3 bucket for Unreal Engine files
-
   SnsTopicArn:
     Type: String
     Description: SNS topic ARN for notifications
