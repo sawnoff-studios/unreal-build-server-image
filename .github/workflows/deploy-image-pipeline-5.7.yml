@@ -13,7 +13,6 @@ env:
   PROJECT_NAME: "Unreal57BuildServerImage"
   AWS_REGION: "ap-southeast-2"
   INSTANCE_TYPE: "c5.xlarge"
-  LOG_BUCKET_NAME: "unreal-build-server-image-logs"
   FILES_BUCKET_NAME: "unreal-build-server-files"
   UNREAL_MAJOR_VERSION: "5"
   UNREAL_MINOR_VERSION: "7"
