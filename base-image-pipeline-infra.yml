@@ -93,10 +93,10 @@ Resources:
       Logging:
         S3Logs:
           S3BucketName:
-            - Fn::Join:
-                - ''
-                - - !ImportValue ImageBuilderLogBucketArn
-                  - '/*'
+            Fn::Join:
+              - ''
+              - - !ImportValue ImageBuilderLogBucketArn
+                - '/*'
       #           S3KeyPrefix: 'my-imagebuilder-bucket-prefix'
       # If you would like to keep the instance running after a failed build, set TerminateInstanceOnFailure to false.
       # TerminateInstanceOnFailure: false
