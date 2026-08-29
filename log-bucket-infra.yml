@@ -27,8 +27,8 @@ Resources:
         Status: Enabled
 
 Outputs:
-  ImageBuilderLogBucketName:
-    Description: Image Builder Log S3 Bucket Name
-    Value: !Ref ImageBuilderLogBucket
+  ImageBuilderLogBucketArn:
+    Description: Image Builder Log S3 Bucket ARN
+    Value: !GetAtt ImageBuilderLogBucket.Arn
     Export:
-      Name: ImageBuilderLogBucketName
+      Name: ImageBuilderLogBucketArn
