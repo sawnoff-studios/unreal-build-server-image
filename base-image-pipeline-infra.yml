@@ -213,7 +213,7 @@ Resources:
                 inputs:
                   commands:
                     - |
-                      $url = "https://www.7-zip.org/a/7z2408-x64.exe"
+                      $url = "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe"
                       $installer = "C:\Windows\Temp\7ZipInstaller.exe"
                       Invoke-WebRequest `
                         -Uri $url `
