@@ -64,7 +64,7 @@ Resources:
                   - - 'arn:'
                     - !Sub ${AWS::Partition}
                     - ':s3:::'
-                    - - !ImportValue ImageBuilderLogBucketName
+                    - !ImportValue ImageBuilderLogBucketName
                     - '/*'
 
 
