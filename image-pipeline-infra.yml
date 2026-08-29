@@ -72,7 +72,7 @@ Resources:
               - s3:PutObject
             Effect: Allow
             Resource:
-              - !ImportValue ImageBuilderLogBucketName
+              - !Join ['', [!ImportValue ImageBuilderLogBucketArn '/*']]
 
 
   # EC2 instance role files bucket policy
@@ -122,7 +122,7 @@ Resources:
       # Specify an S3 bucket and EC2 Image Builder will save logs to the bucket.
       Logging:
         S3Logs:
-          S3BucketName: !ImportValue ImageBuilderLogBucketName
+          S3BucketName: !Join ['', [!ImportValue ImageBuilderLogBucketArn '/*']]
 #           S3KeyPrefix: 'my-imagebuilder-bucket-prefix'
       # If you would like to keep the instance running after a failed build, set TerminateInstanceOnFailure to false.
       # TerminateInstanceOnFailure: false
