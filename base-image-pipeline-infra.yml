@@ -66,26 +66,6 @@ Resources:
               - !ImportValue ImageBuilderLogBucketArn
 
 
-  # EC2 instance role files bucket policy
-  # Policy to allow the instance to download Unreal Engine files
-  InstanceFilesBucketPolicy:
-    Type: AWS::IAM::Policy
-    Metadata:
-      Comment: Allows the instance to download files from an S3 bucket.
-    Properties:
-      PolicyName: !Sub ${ResourceName}-InstanceFilesBucketPolicy
-      Roles:
-        - Ref: InstanceRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Action:
-              - s3:GetObject
-            Effect: Allow
-            Resource:
-              - Fn::Sub: arn:${AWS::Partition}:s3:::${FilesBucketName}/*
-
-
   # EC2 instance profile
   # To pass the InstanceRole to an EC2 instance, we need an InstanceProfile.
   # This profile will be used during the image build process.
