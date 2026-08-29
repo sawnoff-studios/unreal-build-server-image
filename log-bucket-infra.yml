@@ -29,6 +29,6 @@ Resources:
 Outputs:
   ImageBuilderLogBucketName:
     Description: Image Builder Log S3 Bucket Name
-    Value: !GetAtt ImageBuilderLogBucket.BucketName
+    Value: !Ref ImageBuilderLogBucket
     Export:
       Name: ImageBuilderLogBucketName
