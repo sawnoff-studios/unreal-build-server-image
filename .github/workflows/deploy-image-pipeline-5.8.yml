@@ -7,7 +7,7 @@ env:
   PROJECT_NAME: "Unreal58BuildServerImage"
   AWS_REGION: "ap-southeast-2"
   INSTANCE_TYPE: "c5.xlarge"
-  FILES_BUCKET_NAME: "unreal-build-server-files"
+  UNREAL_FILES_BUCKET_NAME: "unreal-build-server-files"
   UNREAL_MAJOR_VERSION: "5"
   UNREAL_MINOR_VERSION: "8"
 
@@ -43,7 +43,7 @@ jobs:
           template: ${{ github.workspace }}/image-pipeline-infra.yml
           parameter-overrides:
             "InstanceType=${{ env.INSTANCE_TYPE }},\
-            FilesBucketName=${{ env.FILES_BUCKET_NAME }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
             UnrealMajorVersion=${{ env.UNREAL_MAJOR_VERSION }},\
             UnrealMinorVersion=${{ env.UNREAL_MINOR_VERSION }},\
             SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
