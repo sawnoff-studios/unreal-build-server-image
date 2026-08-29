@@ -61,10 +61,10 @@ Resources:
             Resource:
               - Fn::Join:
                   - ''
-                  - 'arn:'
-                  - !Sub ${AWS::Partition}
-                  - ':s3:::'
-                  - - !ImportValue ImageBuilderLogBucketName
+                  - - 'arn:'
+                    - !Sub ${AWS::Partition}
+                    - ':s3:::'
+                    - - !ImportValue ImageBuilderLogBucketName
                     - '/*'
 
 
