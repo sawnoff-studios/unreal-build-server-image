@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-log-bucket.yml"
-      - "log-bucket-infra.yml"
+      - "../../deploy/log-bucket-infra.yml"
 
 env:
   PROJECT_NAME: "UnrealBuildServerImageLogBucket"
@@ -38,5 +38,5 @@ jobs:
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/log-bucket-infra.yml
+          template: ${{ github.workspace }}/deploy/log-bucket-infra.yml
           parameter-overrides: "LogBucketName=${{ env.LOG_BUCKET_NAME }}"

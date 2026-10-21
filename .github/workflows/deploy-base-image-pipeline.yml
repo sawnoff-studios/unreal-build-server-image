@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-base-image-pipeline.yml"
-      - "base-image-pipeline-infra.yml"
+      - "../../deploy/base-image-pipeline-infra.yml"
 
 env:
   PROJECT_NAME: "UnrealBuildServerBaseImage"
@@ -43,7 +43,7 @@ jobs:
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/base-image-pipeline-infra.yml
+          template: ${{ github.workspace }}/deploy/base-image-pipeline-infra.yml
           parameter-overrides:
             "InstanceType=${{ env.INSTANCE_TYPE }},\
             SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
