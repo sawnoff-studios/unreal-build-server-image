@@ -54,7 +54,8 @@ jobs:
 
       - name: SAM deploy
         run: |
-          sam deploy --template-file ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml \
+          sam deploy \
+            --template-file ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml \
             --stack-name ${{ env.PROJECT_NAME }}Stack \
             --s3-bucket ${{ env.LAMBDA_S3_BUCKET_NAME }} \
             --s3-prefix runner-token-lambda \

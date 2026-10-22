@@ -51,7 +51,7 @@ Resources:
       Handler: index.handler
       Timeout: 30
       MemorySize: 128
-      CodeUri: deploy/runner-token/
+      CodeUri: runner-token/
       Environment:
         Variables:
           SECRETS_MANAGER_KEY_NAME: !Ref SecretsManagerKeyName
