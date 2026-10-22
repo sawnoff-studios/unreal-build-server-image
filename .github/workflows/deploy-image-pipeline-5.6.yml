@@ -40,7 +40,7 @@ jobs:
         id: deploy
         with:
           name: ${{ env.PROJECT_NAME }}Stack
-          template: ${{ github.workspace }}/deploy/image-pipeline-infra.yml
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
           parameter-overrides:
             "InstanceType=${{ env.INSTANCE_TYPE }},\
             FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\

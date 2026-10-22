@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-runner-token-lambda.yml"
-      - "../../deploy/runner-token-lambda-infra.yml"
+      - "../../deploy/infra-runner-token-lambda.yml"
       - "runner-token/**"
 
 env:
@@ -44,17 +44,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: SAM validate
-        run: sam validate --template-file ${{ github.workspace }}/deploy/runner-token-lambda-infra.yml
+        run: sam validate --template-file ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml
 
       - name: NPM install
         run: npm install --prefix ${{ github.workspace }}/runner-token
 
       - name: SAM build
-        run: sam build -t ${{ github.workspace }}/deploy/runner-token-lambda-infra.yml
+        run: sam build -t ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml
 
       - name: SAM deploy
         run: |
-          sam deploy --template-file ${{ github.workspace }}/deploy/runner-token-lambda-infra.yml \
+          sam deploy --template-file ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml \
             --stack-name ${{ env.PROJECT_NAME }}Stack \
             --s3-bucket ${{ env.LAMBDA_S3_BUCKET_NAME }} \
             --s3-prefix runner-token-lambda \
