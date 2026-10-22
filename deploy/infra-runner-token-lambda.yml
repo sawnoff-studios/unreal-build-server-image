@@ -24,7 +24,6 @@ Parameters:
     Description: GitHub App private key
 
 Resources:
-  # Secrets Manager Secret
   GitHubRunnerAppSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -41,7 +40,6 @@ Resources:
           "private_key": "${GitHubAppPrivateKey}"
         }
 
-  # Lambda function
   GitHubRunnerTokenLambda:
     Type: AWS::Serverless::Function
     Properties:
