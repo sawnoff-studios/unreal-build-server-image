@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - ".github/workflows/deploy-runner-token-lambda.yml"
-      - "../../deploy/infra-runner-token-lambda.yml"
+      - "deploy/infra-runner-token-lambda.yml"
       - "runner-token/**"
 
 env:
