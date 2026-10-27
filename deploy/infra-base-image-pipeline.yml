@@ -534,7 +534,7 @@ Resources:
     Properties:
       FunctionName: lowercase-string
       Description: Returns the lowercase version of a string
-      MemorySize: 256
+      MemorySize: 128
       Runtime: python3.8
       Handler: index.lambda_handler
       Role: !GetAtt LowerCaseLambdaRole.Arn
