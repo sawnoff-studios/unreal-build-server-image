@@ -2,7 +2,7 @@
 
 Builds an EC2 Image Builder AMI for an Unreal Engine build server
 
-# Architecture
+## Architecture
 
 ![Unreal Build Server Image architecture diagram](architecture.png)
 
@@ -112,3 +112,10 @@ Builds an EC2 Image Builder AMI for an Unreal Engine build server
 	]
 }
 ```
+
+## Related writing
+
+I wrote about this repository on my blog:
+- [Automated Unreal Engine Build Server on AWS Part 1: Base AMI](https://blog.maceage.com/posts/2026/automated-unreal-engine-build-server-on-aws-1/)
+- [Automated Unreal Engine Build Server on AWS Part 2: Unreal AMI](https://blog.maceage.com/posts/2026/automated-unreal-engine-build-server-on-aws-2/)
+- [Automated Unreal Engine Build Server on AWS Part 3: Build](https://blog.maceage.com/posts/2026/automated-unreal-engine-build-server-on-aws-3/)
