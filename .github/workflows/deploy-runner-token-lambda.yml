@@ -36,6 +36,13 @@ jobs:
           use-installer: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: SAM validate
         run: sam validate --template-file ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml
 
@@ -44,13 +51,6 @@ jobs:
 
       - name: SAM build
         run: sam build -t ${{ github.workspace }}/deploy/infra-runner-token-lambda.yml
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.IAM_ROLE }}
-          role-session-name: ${{ env.PROJECT_NAME }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: SAM deploy
         run: |
