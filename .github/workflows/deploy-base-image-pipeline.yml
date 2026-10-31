@@ -10,7 +10,12 @@ on:
       - "deploy/infra-base-image-pipeline.yml"
 
 env:
-  PROJECT_NAME: "UnrealBuildServerBaseImage"
+  PROJECT_NAME_BASE: "UnrealBuildServerBaseImage"
+  PROJECT_NAME_5_4: "Unreal54BuildServerImage"
+  PROJECT_NAME_5_5: "Unreal55BuildServerImage"
+  PROJECT_NAME_5_6: "Unreal56BuildServerImage"
+  PROJECT_NAME_5_7: "Unreal57BuildServerImage"
+  PROJECT_NAME_5_8: "Unreal58BuildServerImage"
   AWS_REGION: "ap-southeast-2"
   INSTANCE_TYPE: "c5.xlarge"
 
@@ -19,7 +24,7 @@ permissions:
   contents: read
 
 jobs:
-  DeployStack:
+  Delete54Stack:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,21 +35,282 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.IAM_ROLE }}
-          role-session-name: ${{ env.PROJECT_NAME }}
+          role-session-name: ${{ env.PROJECT_NAME_5_4 }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Remove existing CloudFormation stack
+      - name: Remove existing CloudFormation stacks
         run: |
-          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME }}Stack
-          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME }}Stack
+          # Unreal Engine 5.4
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_5_4 }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_5_4 }}Stack
 
-      - name: Deploy CloudFormation stack
+  Delete55Stack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_5 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove existing CloudFormation stacks
+        run: |
+          # Unreal Engine 5.5
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_5_5 }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_5_5 }}Stack
+
+  Delete56Stack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_6 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove existing CloudFormation stacks
+        run: |
+          # Unreal Engine 5.4
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_5_6 }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_5_6 }}Stack
+
+  Delete57Stack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_7 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove existing CloudFormation stacks
+        run: |
+          # Unreal Engine 5.4
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_5_7 }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_5_7 }}Stack
+
+  Delete58Stack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_8 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove existing CloudFormation stacks
+        run: |
+          # Unreal Engine 5.4
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_5_8 }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_5_8 }}Stack
+
+  DeleteBaseStack:
+    runs-on: ubuntu-latest
+    needs: [Delete54Stack, Delete55Stack, Delete56Stack, Delete57Stack, Delete58Stack]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_BASE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Remove existing CloudFormation stacks
+        run: |
+          aws cloudformation delete-stack --stack-name ${{ env.PROJECT_NAME_BASE }}Stack
+          aws cloudformation wait stack-delete-complete --stack-name ${{ env.PROJECT_NAME_BASE }}Stack
+
+  DeployBaseStack:
+    runs-on: ubuntu-latest
+    needs: DeleteBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_BASE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Base Image CloudFormation stack
         uses: aws-actions/aws-cloudformation-github-deploy@v2
         id: deploy
         with:
-          name: ${{ env.PROJECT_NAME }}Stack
+          name: ${{ env.PROJECT_NAME_BASE }}Stack
           template: ${{ github.workspace }}/deploy/infra-base-image-pipeline.yml
           parameter-overrides:
             "InstanceType=${{ env.INSTANCE_TYPE }},\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
+
+  Deploy54Stack:
+    runs-on: ubuntu-latest
+    needs: DeployBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_4 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Unreal Engine 5.4 CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME_5_4 }}Stack
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=5,\
+            UnrealMinorVersion=4,\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
+
+  Deploy55Stack:
+    runs-on: ubuntu-latest
+    needs: DeployBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_5 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Unreal Engine 5.5 CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME_5_5 }}Stack
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=5,\
+            UnrealMinorVersion=5,\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
+
+  Deploy56Stack:
+    runs-on: ubuntu-latest
+    needs: DeployBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_6 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Unreal Engine 5.6 CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME_5_6 }}Stack
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=5,\
+            UnrealMinorVersion=6,\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
+
+  Deploy57Stack:
+    runs-on: ubuntu-latest
+    needs: DeployBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_7 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Unreal Engine 5.7 CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME_5_7 }}Stack
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=5,\
+            UnrealMinorVersion=7,\
+            SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
+          capabilities: 'CAPABILITY_NAMED_IAM'
+
+  Deploy58Stack:
+    runs-on: ubuntu-latest
+    needs: DeployBaseStack
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.IAM_ROLE }}
+          role-session-name: ${{ env.PROJECT_NAME_5_8 }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Unreal Engine 5.8 CloudFormation stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        id: deploy
+        with:
+          name: ${{ env.PROJECT_NAME_5_8 }}Stack
+          template: ${{ github.workspace }}/deploy/infra-image-pipeline.yml
+          parameter-overrides:
+            "InstanceType=${{ env.INSTANCE_TYPE }},\
+            FilesBucketName=${{ env.UNREAL_FILES_BUCKET_NAME }},\
+            UnrealMajorVersion=5,\
+            UnrealMinorVersion=8,\
             SnsTopicArn=${{ secrets.SNS_TOPIC_ARN }}"
           capabilities: 'CAPABILITY_NAMED_IAM'
