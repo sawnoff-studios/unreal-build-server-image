@@ -6,8 +6,9 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/deploy-base-image-pipeline.yml"
+      - ".github/workflows/deploy-image-pipelines.yml"
       - "deploy/infra-base-image-pipeline.yml"
+      - "deploy/infra-image-pipeline.yml"
 
 env:
   PROJECT_NAME_BASE: "UnrealBuildServerBaseImage"
