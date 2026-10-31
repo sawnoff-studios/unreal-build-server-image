@@ -535,7 +535,7 @@ Resources:
       FunctionName: lowercase-string
       Description: Returns the lowercase version of a string
       MemorySize: 128
-      Runtime: python3.15
+      Runtime: python3.14
       Handler: index.lambda_handler
       Role: !GetAtt LowerCaseLambdaRole.Arn
       Timeout: 30
